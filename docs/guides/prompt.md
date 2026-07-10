@@ -60,7 +60,7 @@ There's a [full oh-my-posh example] in [my dotfiles repo].
 
 Not running a prompt engine? `kush init` emits an opt-in fallback that prepends a `(kush:<ctx>)` marker to `PS1` (bash/zsh) or `fish_prompt` (fish), gated on `KUSH_ACTIVE` so it's invisible outside a kush shell:
 
-```
+```text
 eval "$(kush init bash)"
 eval "$(kush init zsh)"
 kush init fish | source

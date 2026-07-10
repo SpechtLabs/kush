@@ -11,7 +11,7 @@ Requires the `kush` binary on `PATH`. See the [main repo](https://github.com/Spe
 
 ## Install
 
-```
+```text
 /plugin marketplace add SpechtLabs/kush
 /plugin install kush
 ```

@@ -24,7 +24,7 @@ Two things will bite you if you don't know them:
 - **The list replaces the default, it doesn't extend it.** The moment you set `context_lookup_locations`, kush looks at exactly what you wrote and nothing else. Keep `$KUBECONFIG` and `~/.kube/config` in the list if you still want them (or leave the key out entirely to keep the defaults).
 - **Order is precedence.** Entries are read top to bottom, and when two files define the same context name the earlier one wins. kush says so on stderr rather than picking silently:
 
-```
+```text
 warning: context "prod" defined in 2 files; using ~/.kube/config
 ```
 
@@ -43,7 +43,7 @@ Mind the extension. Exported kubeconfigs often have no `.yaml` suffix at all (th
 
 A bare `*` is safe even in a messy directory: anything that isn't a valid kubeconfig, a stray `.bak` or a README, is skipped with a warning instead of failing the run.
 
-```
+```text
 warning: skipping ~/.kube/configs/notes.txt: not a valid kubeconfig
 ```
 

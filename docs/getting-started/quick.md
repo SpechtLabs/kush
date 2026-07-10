@@ -8,15 +8,18 @@ Two minutes, four commands.
 ## List your contexts
 
 ::: terminal See what's available
+
 ```shell
 $ kush ctx --list
 # prints every discovered context, marks the current one, no subshell
 ```
+
 :::
 
 ## Enter one
 
 ::: terminal Enter a context
+
 ```shell
 $ kush prod
 # you're now in a subshell pinned to prod
@@ -27,6 +30,7 @@ $ kubectl get pods -n default
 $ exit
 # temp kubeconfig deleted, back in your normal shell
 ```
+
 :::
 
 That's the whole workflow: enter, work, exit. Nothing you did in there touched `~/.kube/config` or your default context; open a second terminal and run `kush dev` alongside it, zero bleed between the two.
@@ -36,9 +40,11 @@ That's the whole workflow: enter, work, exit. Nothing you did in there touched `
 For a single command (scripts, CI, agents), use `kush exec` instead of a subshell. It pins KUBECONFIG for just that one process, forwards stdin/stdout/stderr, and propagates the exit code:
 
 ::: terminal One-off command against an isolated context
+
 ```shell
-$ kush exec prod -- kubectl get pods -n kube-system
+kush exec prod -- kubectl get pods -n kube-system
 ```
+
 :::
 
 ## Where contexts come from

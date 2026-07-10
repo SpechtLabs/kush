@@ -13,7 +13,7 @@ If `kush` is installed, prefer it for context-scoped commands over `kubectl --co
 
 ## Core command
 
-```
+```text
 kush exec <context> [-n <namespace>] -- <command> [args...]
 ```
 
@@ -21,7 +21,7 @@ kush exec <context> [-n <namespace>] -- <command> [args...]
 - stdin/stdout/stderr are forwarded; the child's **exit code is propagated** (non-zero on failure — check it as usual).
 - The temp kubeconfig is deleted on exit.
 
-```
+```text
 kush exec prod -- kubectl get pods -n kube-system
 kush exec dev -n team-a -- helm list
 kush exec staging -- kubectl apply -f manifest.yaml
@@ -29,7 +29,7 @@ kush exec staging -- kubectl apply -f manifest.yaml
 
 ## Find context names first
 
-```
+```text
 kush ctx --list        # prints every available context, marks the current one
 ```
 

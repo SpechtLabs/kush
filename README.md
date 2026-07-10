@@ -33,7 +33,7 @@ Or grab a prebuilt binary from the [releases page](https://github.com/spechtlabs
 Verify:
 
 ```shell
-$ kush version
+kush version
 ```
 
 If you have [`fzf`](https://github.com/junegunn/fzf) on your `PATH`, kush uses it for the context picker automatically; otherwise it falls back to a built-in TUI. Nothing to configure either way.
@@ -43,10 +43,10 @@ If you have [`fzf`](https://github.com/junegunn/fzf) on your `PATH`, kush uses i
 The whole workflow is enter, work, exit:
 
 ```shell
-$ kush prod                       # subshell pinned to prod, via a private kubeconfig
-$ kubectl get pods                # kubectl, helm, k9s, flux: all see only prod
-$ kush ns kube-system             # re-pin the namespace in place, same shell
-$ exit                            # temp kubeconfig deleted, back to your normal shell
+kush prod                       # subshell pinned to prod, via a private kubeconfig
+kubectl get pods                # kubectl, helm, k9s, flux: all see only prod
+kush ns kube-system             # re-pin the namespace in place, same shell
+exit                            # temp kubeconfig deleted, back to your normal shell
 ```
 
 Run `kush` with no argument to pick a context interactively. To switch context, you exit and enter another; kush deliberately won't change context in place, since that's the silent state change that gets people into trouble.
@@ -54,8 +54,8 @@ Run `kush` with no argument to pick a context interactively. To switch context, 
 For scripts, CI, and agents that need a single command without an interactive shell, use `kush exec`. It pins `KUBECONFIG` for just that one process, forwards stdin/stdout/stderr, propagates the exit code, and cleans up when the command finishes:
 
 ```shell
-$ kush exec prod -- kubectl get pods
-$ kush exec prod -n kube-system -- kubectl get pods
+kush exec prod -- kubectl get pods
+kush exec prod -n kube-system -- kubectl get pods
 ```
 
 ## Commands

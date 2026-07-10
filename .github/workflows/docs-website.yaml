@@ -47,10 +47,15 @@ jobs:
         run: cd docs && bun run build
 
       - name: Upload Artifacts
+        # Only the deploy jobs consume this, and they run on push/dispatch.
+        # Skipping the upload on PRs avoids spending Actions artifact storage on
+        # builds that never deploy.
+        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v6
         with:
           name: docs
           path: docs/.vuepress/dist
+          retention-days: 1
 
   deploy-gh-pages:
     runs-on: ubuntu-latest

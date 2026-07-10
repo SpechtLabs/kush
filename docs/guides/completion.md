@@ -5,7 +5,7 @@ createTime: 2026/07/10 10:00:00
 
 `kush completion` generates a shell-completion script so context names complete on TAB. Install it once and you stop typing (or misremembering) full context names.
 
-```
+```text
 kush completion bash
 kush completion zsh
 kush completion fish

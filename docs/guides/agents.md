@@ -9,7 +9,7 @@ kush ships a Claude Code plugin so agentic tools reach for `kush exec` (isolated
 
 This repository is a Claude Code plugin marketplace. Add it, then install the `kush` plugin:
 
-```
+```text
 /plugin marketplace add SpechtLabs/kush
 /plugin install kush
 ```

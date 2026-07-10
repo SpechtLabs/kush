@@ -31,13 +31,13 @@ When this key is set and non-empty, it **replaces** the default lookup entirely.
 
 Contexts are merged first-wins; list order is precedence. If the same context name is defined in more than one file, kush emits a warning to stderr and uses the first file it saw:
 
-```
+```text
 warning: context "prod" defined in 2 files; using ~/.kube/config
 ```
 
 A file matched by a glob that isn't a valid kubeconfig is skipped, not fatal:
 
-```
+```text
 warning: skipping ~/.kube/configs/notes.txt: not a valid kubeconfig
 ```
 

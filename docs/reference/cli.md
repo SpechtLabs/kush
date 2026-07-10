@@ -9,7 +9,7 @@ Every kush subcommand, its flags, and what it does. For a narrative walkthrough 
 
 **Synopsis**
 
-```
+```text
 kush [context] [-l|--list]
 kush ctx [context] [-l|--list]
 ```
@@ -25,6 +25,7 @@ Enters an ephemeral subshell pinned to `<context>`, isolated via a private one-c
 | `-l`, `--list` | Print every discovered context, marking the current one, and exit. No subshell is spawned. |
 
 ::: terminal Enter a context
+
 ```shell
 $ kush prod
 # you're now in a subshell pinned to prod
@@ -35,22 +36,25 @@ prod
 $ exit
 # back in your normal shell
 ```
+
 :::
 
 ::: terminal List contexts
+
 ```shell
 $ kush ctx --list
   dev
   staging
 * prod
 ```
+
 :::
 
 ## `kush ns [name]`
 
 **Synopsis**
 
-```
+```text
 kush ns [name]
 ```
 
@@ -68,6 +72,7 @@ Called with no argument, prompts for a namespace as free text (namespace listing
 None.
 
 ::: terminal Re-pin namespace in place
+
 ```shell
 $ kush prod
 $ kush ns kube-system
@@ -76,13 +81,14 @@ $ kush ns kube-system
 $ kubectl get pods
 # lists pods in kube-system
 ```
+
 :::
 
 ## `kush exec <context> [-n namespace] -- <command> [args...]`
 
 **Synopsis**
 
-```
+```text
 kush exec <context> [-n|--namespace <namespace>] -- <command> [args...]
 ```
 
@@ -97,6 +103,7 @@ Runs a single command against an isolated context, non-interactively, with no su
 | `-n`, `--namespace` | Namespace to pin for this invocation. |
 
 ::: terminal Run one command
+
 ```shell
 $ kush exec prod -- kubectl get pods
 NAME                    READY   STATUS    RESTARTS   AGE
@@ -105,21 +112,24 @@ web-7d9f8c9b5f-4x2kq    1/1     Running   0          3d
 $ echo $?
 0
 ```
+
 :::
 
 ::: terminal With a namespace
+
 ```shell
 $ kush exec prod -n kube-system -- kubectl get pods
 NAME                       READY   STATUS    RESTARTS   AGE
 coredns-5d78c9869d-2f8j9   1/1     Running   0          12d
 ```
+
 :::
 
 ## `kush current`
 
 **Synopsis**
 
-```
+```text
 kush current
 ```
 
@@ -132,6 +142,7 @@ Prints the active context and namespace. Outside a kush shell, prints nothing an
 None.
 
 ::: terminal Check active state
+
 ```shell
 $ kush current
 prod/default
@@ -140,13 +151,14 @@ $ exit
 $ kush current
 # (empty, not in a kush shell)
 ```
+
 :::
 
 ## `kush lint`
 
 **Synopsis**
 
-```
+```text
 kush lint
 ```
 
@@ -159,6 +171,7 @@ Checks every discovered kubeconfig for common problems: contexts referencing a m
 None.
 
 ::: terminal Lint kubeconfigs
+
 ```shell
 $ kush lint
 error: context "staging" references missing cluster "staging-eks"
@@ -167,13 +180,14 @@ warning: skipping ~/.kube/configs/broken.yaml: not a valid kubeconfig
 $ echo $?
 1
 ```
+
 :::
 
 ## `kush split [-o dir]`
 
 **Synopsis**
 
-```
+```text
 kush split [-o|--out <dir>]
 ```
 
@@ -188,28 +202,32 @@ Writes one self-contained kubeconfig per discovered context into a target direct
 | `-o`, `--out` | Output directory. Defaults to `~/.kube/kush`. |
 
 ::: terminal Split into per-context files
+
 ```shell
 $ kush split
 wrote ~/.kube/kush/dev.yaml
 wrote ~/.kube/kush/staging.yaml
 wrote ~/.kube/kush/prod.yaml
 ```
+
 :::
 
 ::: terminal Custom output directory
+
 ```shell
 $ kush split -o ./kubeconfigs
 wrote kubeconfigs/dev.yaml
 wrote kubeconfigs/staging.yaml
 wrote kubeconfigs/prod.yaml
 ```
+
 :::
 
 ## `kush init <bash|zsh|fish>`
 
 **Synopsis**
 
-```
+```text
 kush init <bash|zsh|fish>
 ```
 
@@ -222,24 +240,28 @@ Emits opt-in prompt-fallback shell glue that prepends a `(kush:<ctx>)` marker to
 None.
 
 ::: terminal Wire up bash or zsh
+
 ```shell
 $ eval "$(kush init bash)"
 # add the same line to ~/.bashrc or ~/.zshrc to make it permanent
 ```
+
 :::
 
 ::: terminal Wire up fish
+
 ```shell
 $ kush init fish | source
 # add the same line to config.fish to make it permanent
 ```
+
 :::
 
 ## `kush completion <bash|zsh|fish>`
 
 **Synopsis**
 
-```
+```text
 kush completion <bash|zsh|fish>
 ```
 
@@ -252,19 +274,21 @@ Standard cobra shell-completion script. Once installed, `kush ctx <TAB>`, bare `
 None.
 
 ::: terminal Install completion (bash)
+
 ```shell
 $ kush completion bash > /etc/bash_completion.d/kush
 # restart your shell, then:
 $ kush ctx <TAB>
 dev      staging  prod
 ```
+
 :::
 
 ## `kush version`
 
 **Synopsis**
 
-```
+```text
 kush version
 kush --version
 ```
@@ -278,8 +302,10 @@ Prints the installed kush version and exits `0`.
 None.
 
 ::: terminal Check the version
+
 ```shell
 $ kush version
 kush dev
 ```
+
 :::

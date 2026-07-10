@@ -32,7 +32,7 @@ flowchart LR
 
 The generated file is written to:
 
-```
+```text
 $XDG_RUNTIME_DIR/kush/<ctx>-<pid>-<rand>.yaml
 ```
 
@@ -58,7 +58,7 @@ That covers voluntary exits. A hard crash (the machine loses power, the process 
 
 Because each kush shell sets `KUSH_ACTIVE=1`, kush can tell at startup whether it's already running inside one of its own shells. If it is, entering another context is refused outright:
 
-```
+```text
 already in a kush shell (prod); exit first to switch context
 ```
 

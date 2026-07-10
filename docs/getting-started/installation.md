@@ -17,10 +17,12 @@ kush ships a built-in picker (charm/huh TUI) that works out of the box with no e
 ## Verify
 
 ::: terminal Verify the install
+
 ```shell
 $ kush version
 # prints the installed version and exits 0
 ```
+
 :::
 
 If that prints a version instead of "command not found," you're set up. Head to the [quick start](./quick.md) to enter your first context.
