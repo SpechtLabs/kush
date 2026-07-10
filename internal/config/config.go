@@ -1,0 +1,57 @@
+// Package config exposes kush's user configuration (viper-backed): the picker
+// mode and the context lookup locations. internal/cmd initializes viper from
+// ~/.config/kush/config.yaml and the KUSH_ env prefix; this package is the
+// typed, defaulted read side.
+package config
+
+import (
+	"fmt"
+	"strings"
+
+	humane "github.com/sierrasoftworks/humane-errors-go"
+	"github.com/spf13/viper"
+)
+
+// PickerMode selects which picker kush uses when no context arg is given.
+type PickerMode int
+
+const (
+	PickerAuto    PickerMode = iota // fzf if present, else the built-in TUI
+	PickerBuiltin                   // always the built-in TUI
+	PickerFzf                       // always fzf (error if not installed)
+)
+
+const (
+	KeyLookupLocations = "context_lookup_locations"
+	KeyPicker          = "picker"
+)
+
+// ParsePicker maps a config string to a PickerMode. "" and "auto" → PickerAuto;
+// an unrecognized value is an error.
+func ParsePicker(s string) (PickerMode, error) {
+	switch strings.ToLower(strings.TrimSpace(s)) {
+	case "", "auto":
+		return PickerAuto, nil
+	case "builtin":
+		return PickerBuiltin, nil
+	case "fzf":
+		return PickerFzf, nil
+	default:
+		return PickerAuto, humane.New(fmt.Sprintf("invalid picker mode %q", s), "set picker to one of: auto, builtin, fzf")
+	}
+}
+
+// Picker returns the configured picker mode (default PickerAuto).
+func Picker() (PickerMode, error) {
+	return ParsePicker(viper.GetString(KeyPicker))
+}
+
+// LookupLocations returns the configured context lookup locations, or nil when
+// unset/empty (nil signals "use kubeconfig defaults").
+func LookupLocations() []string {
+	locs := viper.GetStringSlice(KeyLookupLocations)
+	if len(locs) == 0 {
+		return nil
+	}
+	return locs
+}
