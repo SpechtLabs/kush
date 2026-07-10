@@ -25,7 +25,7 @@ jobs:
 
       - name: Restore custom-gcl cache
         id: custom-gcl-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: custom-gcl
           key: custom-gcl-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.custom-gcl.yml', '.mise.toml') }}
