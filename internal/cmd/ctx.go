@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 
@@ -19,12 +20,38 @@ var cmdCtx = &cobra.Command{
 	Args:              cobra.MaximumNArgs(1),
 	ValidArgsFunction: completeContexts,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if list, _ := cmd.Flags().GetBool("list"); list {
+			return listContexts(cmd)
+		}
 		name := ""
 		if len(args) == 1 {
 			name = args[0]
 		}
 		return runCtx(cmd.Context(), cmd.ErrOrStderr(), name, "")
 	},
+}
+
+func init() {
+	cmdCtx.Flags().BoolP("list", "l", false, "list all discovered contexts and exit (no subshell)")
+}
+
+// listContexts prints every context discovered across the configured lookup
+// locations, one per line, marking the current context. It is also the quickest
+// way to see exactly which contexts kush's config resolves to.
+func listContexts(cmd *cobra.Command) error {
+	cfg, err := resolveLoad(cmd.ErrOrStderr())
+	if err != nil {
+		return err
+	}
+	out := cmd.OutOrStdout()
+	for _, name := range kubeconfig.Contexts(cfg) {
+		if name == cfg.CurrentContext {
+			fmt.Fprintf(out, "%s (current)\n", name)
+			continue
+		}
+		fmt.Fprintln(out, name)
+	}
+	return nil
 }
 
 // runCtx enters an isolated subshell for ctxName at the optional namespace.

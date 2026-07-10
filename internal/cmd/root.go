@@ -28,6 +28,9 @@ func NewRootCmd() *cobra.Command {
 		SilenceErrors:     true,
 		ValidArgsFunction: completeContexts,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if list, _ := cmd.Flags().GetBool("list"); list {
+				return listContexts(cmd)
+			}
 			name := ""
 			if len(args) == 1 {
 				name = args[0]
@@ -36,6 +39,7 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
+	root.Flags().BoolP("list", "l", false, "list all discovered contexts and exit (no subshell)")
 	root.Version = Version
 	root.AddCommand(newVersionCmd())
 	return root
