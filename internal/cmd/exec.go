@@ -16,9 +16,10 @@ import (
 var execNamespace string
 
 var cmdExec = &cobra.Command{
-	Use:   "exec <context> [-n namespace] -- <command> [args...]",
-	Short: "Run one command against an isolated context, no interactive shell",
-	Args:  cobra.MinimumNArgs(2),
+	Use:               "exec <context> [-n namespace] -- <command> [args...]",
+	Short:             "Run one command against an isolated context, no interactive shell",
+	Args:              cobra.MinimumNArgs(2),
+	ValidArgsFunction: completeContexts,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctxName := args[0]
 		argv := args[1:]

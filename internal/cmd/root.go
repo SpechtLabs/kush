@@ -18,9 +18,10 @@ func NewRootCmd() *cobra.Command {
 		Long: "kush drops you into a throwaway subshell pinned to exactly one " +
 			"Kubernetes context. Prod in one terminal, dev in another, with no " +
 			"leakage between them or back into ~/.kube/config.",
-		Args:          cobra.MaximumNArgs(1),
-		SilenceUsage:  true,
-		SilenceErrors: true,
+		Args:              cobra.MaximumNArgs(1),
+		SilenceUsage:      true,
+		SilenceErrors:     true,
+		ValidArgsFunction: completeContexts,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := ""
 			if len(args) == 1 {

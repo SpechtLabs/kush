@@ -13,9 +13,10 @@ import (
 )
 
 var cmdCtx = &cobra.Command{
-	Use:   "ctx [name]",
-	Short: "Enter an isolated subshell pinned to a context (no arg opens the picker)",
-	Args:  cobra.MaximumNArgs(1),
+	Use:               "ctx [name]",
+	Short:             "Enter an isolated subshell pinned to a context (no arg opens the picker)",
+	Args:              cobra.MaximumNArgs(1),
+	ValidArgsFunction: completeContexts,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := ""
 		if len(args) == 1 {
