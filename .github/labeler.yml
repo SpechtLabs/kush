@@ -3,7 +3,6 @@ cli:
   - changed-files:
       - any-glob-to-any-file:
           - "cmd/kush/**"
-          - "internal/cmd/**"
 
 # kubeconfig extraction, isolation, and shell state
 core:

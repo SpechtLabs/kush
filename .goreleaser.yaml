@@ -21,9 +21,9 @@ builds:
     mod_timestamp: "{{ .CommitTimestamp }}"
     ldflags:
       - -s -w
-      - -X=github.com/spechtlabs/kush/internal/cmd.Version={{ .Version }}
-      - -X=github.com/spechtlabs/kush/internal/cmd.Commit={{ .Commit }}
-      - -X=github.com/spechtlabs/kush/internal/cmd.Date={{ .CommitDate }}
+      - -X=main.Version={{ .Version }}
+      - -X=main.Commit={{ .Commit }}
+      - -X=main.Date={{ .CommitDate }}
 
 archives:
   - id: kush

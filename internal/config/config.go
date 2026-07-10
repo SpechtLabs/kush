@@ -1,5 +1,5 @@
 // Package config exposes kush's user configuration (viper-backed): the picker
-// mode and the context lookup locations. internal/cmd initializes viper from
+// mode and the context lookup locations. cmd/kush initializes viper from
 // ~/.config/kush/config.yaml and the KUSH_ env prefix; this package is the
 // typed, defaulted read side.
 package config

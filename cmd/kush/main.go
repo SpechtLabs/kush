@@ -7,12 +7,11 @@ import (
 	"os"
 
 	humane "github.com/sierrasoftworks/humane-errors-go"
-	"github.com/spechtlabs/kush/internal/cmd"
 )
 
 func main() {
-	root := cmd.NewRootCmd()
-	cmd.AddSubcommands(root)
+	root := NewRootCmd()
+	AddSubcommands(root)
 	if err := root.ExecuteContext(context.Background()); err != nil {
 		var herr humane.Error
 		if errors.As(err, &herr) {

@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Build metadata, overridable via -ldflags "-X .../internal/cmd.Version=...".
+// Build metadata, overridable via -ldflags "-X main.Version=...".
 var (
 	Version = "dev"
 	Commit  = "none"
