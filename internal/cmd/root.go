@@ -49,4 +49,6 @@ func AddSubcommands(root *cobra.Command) {
 	root.AddCommand(cmdNs)
 	root.AddCommand(cmdInit)
 	root.AddCommand(cmdExec)
+	root.AddCommand(cmdLint)
+	root.AddCommand(cmdSplit)
 }
