@@ -2,7 +2,7 @@
 # Go version from your go.mod file
 go = "1.26.5"
 "go:golang.org/x/tools/gopls" = "0.23.0"
-"go:github.com/go-delve/delve/cmd/dlv" = "1.25.2"
+"go:github.com/go-delve/delve/cmd/dlv" = "1.27.0"
 
 # Pre-commit for Git hooks
 pre-commit = "4.6.0"
