@@ -6,6 +6,7 @@ import (
 
 	humane "github.com/sierrasoftworks/humane-errors-go"
 	"github.com/spechtlabs/kush/internal/kubeconfig"
+	"github.com/spechtlabs/kush/internal/picker"
 	"github.com/spechtlabs/kush/internal/shell"
 	"github.com/spechtlabs/kush/internal/state"
 	"github.com/spf13/cobra"
@@ -42,7 +43,11 @@ func runCtx(ctx context.Context, ctxName, namespace string) error {
 	}
 
 	if ctxName == "" {
-		ctxName, err = pickContext(ctx, cfg) // Phase 1: returns an error; replaced in Phase 2.
+		names := kubeconfig.Contexts(cfg)
+		if len(names) == 0 {
+			return humane.New("no contexts found in KUBECONFIG", "check that KUBECONFIG points at a kubeconfig with at least one context")
+		}
+		ctxName, err = picker.Select(ctx, "kush ctx> ", names)
 		if err != nil {
 			return err
 		}
@@ -65,10 +70,4 @@ func runCtx(ctx context.Context, ctxName, namespace string) error {
 		Kubeconfig: path,
 	}
 	return shell.Run(ctx, path, st.Env())
-}
-
-// pickContext is replaced by the real picker in Phase 2. Phase 1 requires an
-// explicit context argument.
-func pickContext(ctx context.Context, cfg interface{}) (string, error) {
-	return "", humane.New("no context given", "run `kush <context>` (interactive picker is added in Phase 2)")
 }
