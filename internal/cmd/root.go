@@ -45,4 +45,5 @@ func initConfig() {
 // beyond version; later phases extend this.
 func AddSubcommands(root *cobra.Command) {
 	root.AddCommand(cmdCtx)
+	root.AddCommand(cmdCurrent)
 }
