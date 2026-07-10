@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"errors"
+	"io"
 	"os"
 	"os/exec"
 
@@ -23,7 +24,7 @@ var cmdExec = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctxName := args[0]
 		argv := args[1:]
-		return runExec(cmd.Context(), ctxName, execNamespace, argv)
+		return runExec(cmd.Context(), cmd.ErrOrStderr(), ctxName, execNamespace, argv)
 	},
 }
 
@@ -32,7 +33,7 @@ func init() {
 	// Everything after `--` is the command; cobra passes it through in args.
 }
 
-func runExec(ctx context.Context, ctxName, namespace string, argv []string) error {
+func runExec(ctx context.Context, warnOut io.Writer, ctxName, namespace string, argv []string) error {
 	if err := state.GuardNesting(); err != nil {
 		return err
 	}
@@ -40,7 +41,7 @@ func runExec(ctx context.Context, ctxName, namespace string, argv []string) erro
 		kubeconfig.SweepStale(dir)
 	}
 
-	cfg, err := kubeconfig.Load()
+	cfg, err := resolveLoad(warnOut)
 	if err != nil {
 		return err
 	}

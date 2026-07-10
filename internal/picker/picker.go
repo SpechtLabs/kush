@@ -20,20 +20,54 @@ func fzfPath() (string, bool) {
 	return p, err == nil
 }
 
+// Mode selects which picker to use. Mirrors config.PickerMode.
+type Mode int
+
+const (
+	Auto Mode = iota
+	Builtin
+	Fzf
+)
+
+// resolvePicker decides whether to shell out to fzf for the given mode.
+func resolvePicker(mode Mode, fzfAvailable bool) (bool, error) {
+	switch mode {
+	case Builtin:
+		return false, nil
+	case Fzf:
+		if !fzfAvailable {
+			return false, humane.New(`picker is set to "fzf" but fzf was not found on PATH`, "install fzf, or set picker to auto or builtin")
+		}
+		return true, nil
+	default: // Auto
+		return fzfAvailable, nil
+	}
+}
+
 // Select returns the item the user chooses from items.
-func Select(ctx context.Context, prompt string, items []string) (string, error) {
+func Select(ctx context.Context, mode Mode, prompt string, items []string) (string, error) {
 	if len(items) == 0 {
 		return "", humane.New("nothing to choose from", "the list passed to the picker was empty")
 	}
-	if path, ok := fzfPath(); ok {
+	path, available := fzfPath()
+	useFzf, err := resolvePicker(mode, available)
+	if err != nil {
+		return "", err
+	}
+	if useFzf {
 		return fzfSelect(ctx, path, prompt, items)
 	}
 	return huhSelect(prompt, items)
 }
 
 // Prompt returns a free-text value the user types.
-func Prompt(ctx context.Context, prompt string) (string, error) {
-	if path, ok := fzfPath(); ok {
+func Prompt(ctx context.Context, mode Mode, prompt string) (string, error) {
+	path, available := fzfPath()
+	useFzf, err := resolvePicker(mode, available)
+	if err != nil {
+		return "", err
+	}
+	if useFzf {
 		return fzfPrompt(ctx, path, prompt)
 	}
 	return huhInput(prompt)

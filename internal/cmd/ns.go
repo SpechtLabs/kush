@@ -32,8 +32,11 @@ func runNs(cmd *cobra.Command, namespace string) error {
 		// Inside a kush shell: edit the temp kubeconfig in place. Exempt from the
 		// nesting guard — no subshell is spawned.
 		if namespace == "" {
-			var err error
-			namespace, err = picker.Prompt(ctx, "kush ns> ")
+			mode, err := pickerMode()
+			if err != nil {
+				return err
+			}
+			namespace, err = picker.Prompt(ctx, mode, "kush ns> ")
 			if err != nil {
 				return err
 			}
@@ -46,7 +49,7 @@ func runNs(cmd *cobra.Command, namespace string) error {
 	}
 
 	// Outside a kush shell: spawn a subshell for the CURRENT context at namespace.
-	cfg, err := kubeconfig.Load()
+	cfg, err := resolveLoad(cmd.ErrOrStderr())
 	if err != nil {
 		return err
 	}
@@ -54,10 +57,14 @@ func runNs(cmd *cobra.Command, namespace string) error {
 		return humane.New("no current context set", "run `kush <context>` or `kubectl config use-context <ctx>` first")
 	}
 	if namespace == "" {
-		namespace, err = picker.Prompt(ctx, "kush ns> ")
+		mode, err := pickerMode()
+		if err != nil {
+			return err
+		}
+		namespace, err = picker.Prompt(ctx, mode, "kush ns> ")
 		if err != nil {
 			return err
 		}
 	}
-	return runCtx(ctx, cfg.CurrentContext, namespace)
+	return runCtx(ctx, cmd.ErrOrStderr(), cfg.CurrentContext, namespace)
 }

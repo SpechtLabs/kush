@@ -1,8 +1,12 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
+	humane "github.com/sierrasoftworks/humane-errors-go"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -27,7 +31,7 @@ func NewRootCmd() *cobra.Command {
 			if len(args) == 1 {
 				name = args[0]
 			}
-			return runCtx(cmd.Context(), name, "")
+			return runCtx(cmd.Context(), cmd.ErrOrStderr(), name, "")
 		},
 	}
 
@@ -37,9 +41,24 @@ func NewRootCmd() *cobra.Command {
 }
 
 func initConfig() {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	if xdg := os.Getenv("XDG_CONFIG_HOME"); xdg != "" {
+		viper.AddConfigPath(filepath.Join(xdg, "kush"))
+	}
+	viper.AddConfigPath("$HOME/.config/kush")
+	viper.AddConfigPath("/etc/kush")
+
 	viper.SetEnvPrefix("KUSH")
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
 	viper.AutomaticEnv()
+
+	if err := viper.ReadInConfig(); err != nil {
+		if _, notFound := err.(viper.ConfigFileNotFoundError); !notFound {
+			fmt.Fprintln(os.Stderr, humane.Wrap(err, "failed to read kush config", "check the syntax of your ~/.config/kush/config.yaml").Display())
+			os.Exit(2)
+		}
+	}
 }
 
 // AddSubcommands wires every non-root subcommand. Phase 1 registers nothing new

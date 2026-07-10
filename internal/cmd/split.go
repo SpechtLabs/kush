@@ -26,7 +26,7 @@ var cmdSplit = &cobra.Command{
 			dir = filepath.Join(home, ".kube", "kush")
 		}
 
-		cfg, err := kubeconfig.Load()
+		cfg, err := resolveLoad(cmd.ErrOrStderr())
 		if err != nil {
 			return err
 		}
