@@ -1,0 +1,81 @@
+version: 2
+
+project_name: kush
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: kush
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    binary: kush
+    dir: ./cmd/kush/
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    ldflags:
+      - -s -w
+      - -X=github.com/spechtlabs/kush/internal/cmd.Version={{ .Version }}
+      - -X=github.com/spechtlabs/kush/internal/cmd.Commit={{ .Commit }}
+      - -X=github.com/spechtlabs/kush/internal/cmd.Date={{ .CommitDate }}
+
+archives:
+  - id: kush
+    ids:
+      - kush
+    name_template: "kush_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: "checksums.txt"
+
+# Publish a Homebrew cask to SpechtLabs/homebrew-tap on each release.
+# Needs a token with write access to that repo, passed as HOMEBREW_TAP_GITHUB_TOKEN
+# (the default GITHUB_TOKEN cannot push to another repository).
+homebrew_casks:
+  - name: kush
+    ids:
+      - kush
+    repository:
+      owner: SpechtLabs
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    directory: Casks
+    homepage: "https://kush.specht-labs.de"
+    description: "Ephemeral, isolated kube-context subshells: a private, throwaway kubeconfig per shell."
+    commit_author:
+      name: goreleaser-bot
+      email: bot@specht-labs.de
+    # kush ships unsigned, so strip the macOS quarantine attribute on install
+    # to avoid Gatekeeper blocking the first run.
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/kush"]
+          end
+
+# Keyless cosign signatures for every published binary.
+signs:
+  - cmd: cosign
+    signature: "${artifact}.sig"
+    certificate: "${artifact}.pem"
+    args:
+      - sign-blob
+      - --yes
+      - --oidc-issuer=https://token.actions.githubusercontent.com
+      - "--output-certificate=${certificate}"
+      - "--output-signature=${signature}"
+      - "${artifact}"
+    artifacts: binary
+
+release:
+  github:
+    owner: spechtlabs
+    name: kush

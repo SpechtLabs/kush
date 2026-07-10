@@ -1,6 +1,6 @@
 [tools]
 # Go version from your go.mod file
-go = "1.26.1"
+go = "1.26.4"
 "go:golang.org/x/tools/gopls" = "0.21.0"
 "go:github.com/go-delve/delve/cmd/dlv" = "1.25.2"
 
