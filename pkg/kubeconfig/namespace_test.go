@@ -1,7 +1,6 @@
 package kubeconfig
 
 import (
-	"os"
 	"testing"
 
 	"k8s.io/client-go/tools/clientcmd"
@@ -11,18 +10,14 @@ import (
 func emptyConfig() *api.Config { return api.NewConfig() }
 
 func TestSetNamespace(t *testing.T) {
-	base := t.TempDir()
-	t.Setenv("XDG_RUNTIME_DIR", base)
-
 	out, err := Extract(sampleConfig(), "prod", "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	path, err := WriteTemp(out, "prod")
-	if err != nil {
+	path := t.TempDir() + "/prod.yaml"
+	if err := clientcmd.WriteToFile(*out, path); err != nil {
 		t.Fatal(err)
 	}
-	defer os.Remove(path)
 
 	if err := SetNamespace(path, "database"); err != nil {
 		t.Fatalf("SetNamespace() error = %v", err)

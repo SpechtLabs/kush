@@ -1,4 +1,4 @@
-package kubeconfig
+package tempkube
 
 import (
 	"os"
@@ -7,7 +7,19 @@ import (
 	"testing"
 
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
 )
+
+// sampleConfig returns a minimal single-context kubeconfig for exercising the
+// temp-file writer. tempkube stays independent of pkg/kubeconfig on purpose.
+func sampleConfig() *api.Config {
+	cfg := api.NewConfig()
+	cfg.Clusters["prod-cluster"] = &api.Cluster{Server: "https://prod:6443"}
+	cfg.AuthInfos["prod-user"] = &api.AuthInfo{Token: "prod-token"}
+	cfg.Contexts["prod"] = &api.Context{Cluster: "prod-cluster", AuthInfo: "prod-user", Namespace: "web"}
+	cfg.CurrentContext = "prod"
+	return cfg
+}
 
 func TestTempDirUsesXDGRuntime(t *testing.T) {
 	base := t.TempDir()
@@ -53,11 +65,7 @@ func TestWriteTemp(t *testing.T) {
 	base := t.TempDir()
 	t.Setenv("XDG_RUNTIME_DIR", base)
 
-	out, err := Extract(sampleConfig(), "prod", "")
-	if err != nil {
-		t.Fatalf("Extract() error = %v", err)
-	}
-	path, err := WriteTemp(out, "prod")
+	path, err := WriteTemp(sampleConfig(), "prod")
 	if err != nil {
 		t.Fatalf("WriteTemp() error = %v", err)
 	}

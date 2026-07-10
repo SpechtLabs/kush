@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	humane "github.com/sierrasoftworks/humane-errors-go"
-	"github.com/spechtlabs/kush/internal/kubeconfig"
 	"github.com/spechtlabs/kush/internal/picker"
 	"github.com/spechtlabs/kush/internal/state"
+	"github.com/spechtlabs/kush/pkg/kubeconfig"
 	"github.com/spf13/cobra"
 )
 

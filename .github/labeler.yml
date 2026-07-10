@@ -8,7 +8,8 @@ cli:
 core:
   - changed-files:
       - any-glob-to-any-file:
-          - "internal/kubeconfig/**"
+          - "pkg/kubeconfig/**"
+          - "internal/tempkube/**"
           - "internal/state/**"
           - "internal/shell/**"
 

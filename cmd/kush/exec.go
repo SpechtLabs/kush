@@ -8,9 +8,10 @@ import (
 	"os/exec"
 
 	humane "github.com/sierrasoftworks/humane-errors-go"
-	"github.com/spechtlabs/kush/internal/kubeconfig"
 	"github.com/spechtlabs/kush/internal/shell"
 	"github.com/spechtlabs/kush/internal/state"
+	"github.com/spechtlabs/kush/internal/tempkube"
+	"github.com/spechtlabs/kush/pkg/kubeconfig"
 	"github.com/spf13/cobra"
 )
 
@@ -37,8 +38,8 @@ func runExec(ctx context.Context, warnOut io.Writer, ctxName, namespace string, 
 	if err := state.GuardNesting(); err != nil {
 		return err
 	}
-	if dir, err := kubeconfig.TempDir(); err == nil {
-		kubeconfig.SweepStale(dir)
+	if dir, err := tempkube.TempDir(); err == nil {
+		tempkube.SweepStale(dir)
 	}
 
 	cfg, err := resolveLoad(warnOut)
@@ -49,7 +50,7 @@ func runExec(ctx context.Context, warnOut io.Writer, ctxName, namespace string, 
 	if err != nil {
 		return err
 	}
-	path, err := kubeconfig.WriteTemp(out, ctxName)
+	path, err := tempkube.WriteTemp(out, ctxName)
 	if err != nil {
 		return err
 	}

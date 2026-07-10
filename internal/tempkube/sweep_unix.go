@@ -1,6 +1,6 @@
 //go:build unix
 
-package kubeconfig
+package tempkube
 
 import (
 	"os"

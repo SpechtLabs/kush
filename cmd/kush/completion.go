@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/spechtlabs/kush/internal/config"
-	"github.com/spechtlabs/kush/internal/kubeconfig"
+	"github.com/spechtlabs/kush/pkg/kubeconfig"
 	"github.com/spf13/cobra"
 )
 

@@ -5,8 +5,8 @@ import (
 	"io"
 
 	"github.com/spechtlabs/kush/internal/config"
-	"github.com/spechtlabs/kush/internal/kubeconfig"
 	"github.com/spechtlabs/kush/internal/picker"
+	"github.com/spechtlabs/kush/pkg/kubeconfig"
 	"k8s.io/client-go/tools/clientcmd/api"
 )
 

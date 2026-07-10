@@ -8,10 +8,11 @@ import (
 
 	humane "github.com/sierrasoftworks/humane-errors-go"
 	"github.com/spechtlabs/kush/internal/config"
-	"github.com/spechtlabs/kush/internal/kubeconfig"
 	"github.com/spechtlabs/kush/internal/picker"
 	"github.com/spechtlabs/kush/internal/shell"
 	"github.com/spechtlabs/kush/internal/state"
+	"github.com/spechtlabs/kush/internal/tempkube"
+	"github.com/spechtlabs/kush/pkg/kubeconfig"
 	"github.com/spf13/cobra"
 )
 
@@ -63,8 +64,8 @@ func runCtx(ctx context.Context, warnOut io.Writer, ctxName, namespace string) e
 	}
 
 	// Opportunistic stale-file cleanup; never blocks the invocation.
-	if dir, err := kubeconfig.TempDir(); err == nil {
-		kubeconfig.SweepStale(dir)
+	if dir, err := tempkube.TempDir(); err == nil {
+		tempkube.SweepStale(dir)
 	}
 
 	cfg, err := resolveLoad(warnOut)
@@ -92,7 +93,7 @@ func runCtx(ctx context.Context, warnOut io.Writer, ctxName, namespace string) e
 		return err
 	}
 
-	path, err := kubeconfig.WriteTemp(out, ctxName)
+	path, err := tempkube.WriteTemp(out, ctxName)
 	if err != nil {
 		return err
 	}
