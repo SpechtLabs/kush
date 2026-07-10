@@ -1,0 +1,36 @@
+{
+  "name": "kush",
+  "version": "0.1.0",
+  "description": "Teaches agentic tools to run isolated, non-interactive Kubernetes commands against a specific context using `kush exec`, and to avoid the interactive subshell commands.",
+  "author": {
+    "name": "Cedric Specht",
+    "email": "cedric@specht-labs.de"
+  },
+  "homepage": "https://github.com/SpechtLabs/kush",
+  "repository": "https://github.com/SpechtLabs/kush",
+  "license": "MIT",
+  "keywords": [
+    "kubernetes",
+    "kubeconfig",
+    "kubectl",
+    "helm"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "kush",
+    "shortDescription": "Run Kubernetes tools through isolated kube contexts.",
+    "longDescription": "Teaches Codex to prefer `kush exec <context> -- <command>` for scoped, non-interactive Kubernetes work, keeping the user's active kube context untouched and avoiding interactive subshell commands.",
+    "developerName": "Specht Labs",
+    "category": "Development",
+    "capabilities": [
+      "Kubernetes",
+      "CLI guidance"
+    ],
+    "websiteURL": "https://github.com/SpechtLabs/kush",
+    "defaultPrompt": [
+      "List pods in my kube context with kush.",
+      "Run a helm command through kush exec."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

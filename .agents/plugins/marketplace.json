@@ -1,0 +1,20 @@
+{
+  "name": "kush",
+  "interface": {
+    "displayName": "kush"
+  },
+  "plugins": [
+    {
+      "name": "kush",
+      "source": {
+        "source": "local",
+        "path": "./plugins/kush"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development"
+    }
+  ]
+}
