@@ -1,0 +1,66 @@
+# CLI commands and entrypoint
+cli:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "cmd/kush/**"
+
+# kubeconfig extraction, isolation, and shell state
+core:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "pkg/kubeconfig/**"
+          - "internal/tempkube/**"
+          - "internal/state/**"
+          - "internal/shell/**"
+
+# Config discovery and the context picker
+config:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "internal/config/**"
+          - "internal/picker/**"
+
+# Claude Code plugin and bundled skill
+plugin:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "plugins/**"
+          - "skills/**"
+
+# Tests
+tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*_test.go"
+          - "**/testdata/**"
+
+# Documentation
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docs/**"
+          - "**/*.md"
+
+# Build, release, and CI plumbing
+build:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**"
+          - ".goreleaser.yaml"
+          - ".release-please-config.json"
+          - ".release-please-manifest.json"
+          - ".mise.toml"
+          - "go.mod"
+          - "go.sum"
+
+# Add 'enhancement' to any PR whose head branch starts with `feat` or `feature`
+enhancement:
+  - head-branch:
+      - "^feat"
+      - "^feature"
+
+# Add 'bug' to any PR whose head branch starts with `fix` or `bug`
+bug:
+  - head-branch:
+      - "^fix"
+      - "^bug"

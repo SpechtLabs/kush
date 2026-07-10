@@ -40,3 +40,6 @@ cover.out
 **.secret.yaml
 .docker-netrc
 docs/superpowers/
+
+# goreleaser build output
+dist/

@@ -1,0 +1,55 @@
+name: Quality Validations
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - "*"
+    paths:
+      - .github/workflows/validations.yaml
+      - "**/*.yml"
+      - "**/*.yaml"
+      - "**/*.md"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+    paths:
+      - .github/workflows/validations.yaml
+      - "**/*.yml"
+      - "**/*.yaml"
+      - "**/*.md"
+
+permissions:
+  contents: read
+
+jobs:
+  md:
+    name: Markdown
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - uses: DavidAnson/markdownlint-cli2-action@v22
+        with:
+          globs: "**/*.md"
+
+  yaml:
+    name: YAML
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - uses: ibiqlik/action-yamllint@v3
+        id: lint
+        continue-on-error: true
+        with:
+          file_or_dir: .
+          format: standard
+          config_file: .yamllint.yaml

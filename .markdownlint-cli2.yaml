@@ -16,6 +16,11 @@ config:
       - p
       - img
 
+  # MD036: Allow bold labels used as pseudo-headings. The CLI reference
+  # deliberately uses **Synopsis** / **Description** / **Flags** as compact
+  # per-command labels rather than headings, to keep them out of the page TOC.
+  MD036: false
+
   # MD040: Require language specification for fenced code blocks
   # All code blocks must have a language tag for syntax highlighting
   MD040: true

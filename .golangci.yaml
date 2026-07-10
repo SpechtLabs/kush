@@ -1,4 +1,8 @@
-# golangci-lint configuration for golint-sl
+# golangci-lint configuration for kush.
+#
+# golint-sl runs as a module plugin baked into ./custom-gcl (see .custom-gcl.yml).
+# The prebuilt golangci-lint cannot load the plugin, so run it with
+# `mise run lint`, which builds custom-gcl and runs it.
 # https://golangci-lint.run/usage/configuration/
 
 version: "2"
@@ -14,7 +18,7 @@ issues:
 
 linters:
   enable:
-    # Default linters (gosimple and stylecheck are now part of staticcheck)
+    # Default linters
     - errcheck
     - govet
     - ineffassign
@@ -22,9 +26,7 @@ linters:
     - unused
 
     # Additional recommended linters
-    # bodyclose: replaced by golint-sl's resourceclose (more comprehensive)
     - dogsled
-    # dupl: disabled — builder-pattern code is naturally repetitive and not a real issue
     - copyloopvar
     - gochecknoinits
     - goconst
@@ -34,7 +36,6 @@ linters:
     - gosec
     - misspell
     - nakedret
-    # noctx: replaced by golint-sl's contextpropagation (production-focused)
     - nolintlint
     - prealloc
     - revive
@@ -50,12 +51,16 @@ linters:
 
   settings:
     errcheck:
-      check-type-assertions: false # Type assertions on pass.ResultOf are safe in analyzers
+      check-type-assertions: false
       check-blank: false
     govet:
       enable-all: true
       disable:
         - fieldalignment # Too noisy for most projects
+    gosec:
+      excludes:
+        - G204 # kush intentionally execs the user's shell / fzf with a context name
+        - G302 # the private runtime dir is deliberately 0700 (owner must list it)
     misspell:
       locale: US
     revive:
@@ -67,39 +72,41 @@ linters:
         type: module
         description: SpechtLabs Go linter collection for production-ready code
         original-url: github.com/spechtlabs/golint-sl
+        settings:
+          # These are architectural suggestions ("extract helpers", "abstract the
+          # clock", "inject the loader") that add indirection for little gain in a
+          # small single-binary CLI.
+          disabled-analyzers:
+            - nestingdepth
+            - clockinterface
+            - interfaceconsistency
 
   exclusions:
     generated: lax
     rules:
-      # gochecknoinits: init() is standard pattern for k8s types registration
+      # init() is the idiomatic cobra pattern for registering command flags.
       - linters:
           - gochecknoinits
-        path: api/v1alpha1/
+        path: cmd/kush/
+      # pkg/kubeconfig is a reusable library: it returns idiomatic `error` and
+      # wraps at the point each error originates, so it does not adopt the
+      # application's humane.Error return type or re-wrap on propagation.
       - linters:
-          - gochecknoinits
-        path: cmd/main.go
-      # Exclude test files from security and context linters
+          - golint-sl
+        path: pkg/kubeconfig/
+        text: (humaneerror|errorwrap)
+      # shell.Exec returns the raw *exec.ExitError so the caller can read the
+      # child's exit code; it cannot convert to humane.Error or wrap that path.
+      - linters:
+          - golint-sl
+        path: internal/shell/
+        text: (humaneerror|errorwrap)
+      # Hold test files to a lighter bar than production code.
       - linters:
           - gosec
+          - goconst
           - golint-sl
-        path: ".*test.*"
-      # Exclude testdata directory from most linters
-      - linters:
-          - gosec
-          - errcheck
-          - govet
-          - staticcheck
-          - golint-sl
-        path: testdata/
-      # Exclude e2e test directories
-      - linters:
-          - gosec
-          - golint-sl
-        path: "test/e2e/"
-      - linters:
-          - gosec
-          - golint-sl
-        path: "test/utils/"
+        path: _test\.go
 
     paths:
       - third_party$
