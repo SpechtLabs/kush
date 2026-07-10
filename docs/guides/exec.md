@@ -3,7 +3,7 @@ title: Run one command
 createTime: 2026/07/10 10:00:00
 ---
 
-`kush exec` runs a single command against an isolated context, non-interactively — no subshell, no picker, nothing waiting on a TTY. It's the form to reach for from scripts, CI, and agents.
+`kush exec` runs a single command against an isolated context, non-interactively, with no subshell, no picker, and nothing waiting on a TTY. It's the form to reach for from scripts, CI, and agents.
 
 ## The command
 
@@ -54,7 +54,7 @@ That makes it safe to chain in a script with `&&` or check in CI without any ext
 
 ## Works with any tool
 
-`kush exec` isn't kubectl-specific — it works with anything that reads `KUBECONFIG`:
+`kush exec` isn't kubectl-specific; it works with anything that reads `KUBECONFIG`:
 
 ::: terminal helm through kush exec
 ```shell
@@ -79,6 +79,6 @@ $ kush exec prod -- kubectl get nodes -o name | wc -l
 
 ## The agent-safe alternative
 
-`kush ctx` and `kush ns` are interactive — they wait for a shell to exit, which will hang an agent or a non-interactive CI runner that doesn't know to send an exit. `kush exec` never spawns a shell and never waits on anything beyond the one command you gave it, which makes it the form to use whenever the caller isn't a human at a terminal.
+`kush ctx` and `kush ns` are interactive; they wait for a shell to exit, which will hang an agent or a non-interactive CI runner that doesn't know to send an exit. `kush exec` never spawns a shell and never waits on anything beyond the one command you gave it, which makes it the form to use whenever the caller isn't a human at a terminal.
 
-It also beats `kubectl --context` for that use case: it's uniform across every kube tool, not just kubectl, and it gives real blast-radius containment — the command physically cannot see or touch any context other than the one you named, because no other context exists in the temp kubeconfig it's handed.
+It also beats `kubectl --context` for that use case: it's uniform across every kube tool, not just kubectl, and it gives real blast-radius containment. The command physically cannot see or touch any context other than the one you named, because no other context exists in the temp kubeconfig it's handed.

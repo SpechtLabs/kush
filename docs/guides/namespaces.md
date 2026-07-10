@@ -3,60 +3,59 @@ title: Switch namespaces
 createTime: 2026/07/10 10:00:00
 ---
 
-`kush ns` changes the active namespace. What it actually does depends on whether you're already inside a kush shell.
+Namespace is the one thing kush lets you change without leaving your shell. Context stays locked for the life of a pinned shell, that's the whole design, but you'll constantly want to move between namespaces in the same cluster, checking `billing` and then `kube-system` without re-entering anything. `kush ns` is how.
 
-## Inside a kush shell: re-pin in place
+## Re-pin the namespace in place
 
-If you're inside a kush shell, `kush ns <name>` edits the private temp kubeconfig for that shell directly. No new shell is spawned — you stay exactly where you are, and the change takes effect immediately:
+Inside a kush shell, `kush ns <name>` rewrites the namespace in that shell's private kubeconfig where it sits. No new shell, nothing lost from your session, and it applies on the very next command:
 
 ::: terminal Re-pin the namespace
+
 ```shell
 $ kush prod
-$ kubectl config current-context
-prod
-
 $ kush ns billing
 $ kubectl get pods
-# now querying the billing namespace, same shell, same context
+# querying prod/billing now, same shell
 
 $ kush current
 prod/billing
 ```
+
 :::
 
-Because this is an in-place edit rather than a new subshell, `kush ns` is exempt from the nesting guard described in [Enter a context](./enter-context.md) — it never triggers the "already in a kush shell" error.
+Because it edits the existing kubeconfig instead of spawning a shell, `kush ns` is exempt from the [nesting guard](./enter-context.md). It's the one kush command you can run from inside a kush shell.
 
-## Outside a kush shell: spawn a subshell
+## From a normal shell, it opens one for you
 
-If you run `kush ns <name>` from a normal shell — not inside any kush pin — kush spawns a new subshell for whatever your *current* kube-context is, pinned to that namespace:
+Run `kush ns <name>` when you're *not* already pinned and it spawns a fresh shell for your current ambient context, set to that namespace. Read it as "give me an isolated shell on the cluster I'm already pointed at, in this namespace":
 
 ::: terminal Namespace subshell from outside
+
 ```shell
 $ kubectl config current-context
 staging
 
 $ kush ns billing
-# spawns a subshell pinned to context "staging", namespace "billing"
-
-$ kush current
-staging/billing
+# now in a subshell pinned to staging/billing
 ```
+
 :::
 
-## No argument: free-text prompt
+## No name? kush asks
 
-Leave off the name and kush asks for one:
+Leave the name off and kush prompts for one as free text:
 
 ::: terminal Prompt for a namespace
+
 ```shell
 $ kush ns
 namespace: billing
-# same behavior as `kush ns billing` from here
 ```
+
 :::
 
-This is a free-text prompt, not a picker — kush never calls the cluster API to list namespaces, so there's nothing to autocomplete against.
+It's a plain prompt, not a picker, and that's on purpose: listing namespaces would mean a call to the cluster's API, which kush never makes. You type the name you want and it re-pins.
 
-## Why kubectl and starship just pick it up
+## Why kubectl and your prompt just follow along
 
-`kush ns` edits the `namespace:` field of the context entry in the temp kubeconfig that `KUBECONFIG` already points at. kubectl reads that file on every invocation, so the new namespace applies immediately with no extra flag. starship's native `kubernetes` module reads the same file, so your prompt updates too, without any kush-specific prompt integration.
+`kush ns` only edits the `namespace:` field in the temp kubeconfig that `KUBECONFIG` already points at. kubectl re-reads that file on every invocation, so the switch lands with no flag, and starship's `kubernetes` module reads the same file, so your prompt updates on its own. Nothing anywhere caches the old namespace.

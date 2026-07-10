@@ -18,7 +18,7 @@ export default defineUserConfig({
       {
         name: "description",
         content:
-          "kush drops you into a throwaway subshell pinned to exactly one Kubernetes context, using a private kubeconfig that is deleted on exit. Auth-agnostic, generic successor to `tka shell` and `kubie`.",
+          "kush drops you into a throwaway subshell pinned to exactly one Kubernetes context, using a private kubeconfig that is deleted on exit. Auth-agnostic, with no global kubeconfig state to corrupt.",
       },
     ],
     ["link", { rel: "icon", type: "image/png", href: "/images/specht.png" }],
@@ -48,7 +48,10 @@ export default defineUserConfig({
           while ((m = attrRegex.exec(rest)) !== null) {
             const key = m[1];
             let val = m[2];
-            if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+            if (
+              (val.startsWith('"') && val.endsWith('"')) ||
+              (val.startsWith("'") && val.endsWith("'"))
+            ) {
               val = val.slice(1, -1);
             }
             attrs[key] = val;
@@ -91,8 +94,17 @@ export default defineUserConfig({
           prefix: "/getting-started/",
           items: [
             { text: "Overview", link: "overview", icon: "mdi:eye" },
-            { text: "Installation", link: "installation", icon: "mdi:download" },
-            { text: "Quick Start", link: "quick", icon: "mdi:flash", badge: "2 min" },
+            {
+              text: "Installation",
+              link: "installation",
+              icon: "mdi:download",
+            },
+            {
+              text: "Quick Start",
+              link: "quick",
+              icon: "mdi:flash",
+              badge: "2 min",
+            },
           ],
         },
       ],
@@ -108,9 +120,17 @@ export default defineUserConfig({
               icon: "mdi:kubernetes",
               link: "enter-context",
               items: [
-                { text: "Enter a context", link: "enter-context", icon: "mdi:layers" },
-                { text: "Switch namespaces", link: "namespaces", icon: "mdi:folder-swap" },
-                { text: "Run one command", link: "exec", icon: "mdi:play-box", badge: "CI" },
+                {
+                  text: "Enter a context",
+                  link: "enter-context",
+                  icon: "mdi:layers",
+                },
+                {
+                  text: "Switch namespaces",
+                  link: "namespaces",
+                  icon: "mdi:folder-swap",
+                },
+                { text: "Run one command", link: "exec", icon: "mdi:play-box" },
               ],
             },
             {
@@ -118,8 +138,26 @@ export default defineUserConfig({
               icon: "mdi:cog",
               link: "configuration",
               items: [
-                { text: "Config & discovery", link: "configuration", icon: "mdi:file-cog" },
-                { text: "Completion & prompt", link: "completion", icon: "mdi:keyboard" },
+                {
+                  text: "Config & discovery",
+                  link: "configuration",
+                  icon: "mdi:file-cog",
+                },
+                {
+                  text: "Tab-completion",
+                  link: "completion",
+                  icon: "mdi:keyboard",
+                },
+                {
+                  text: "Prompt integration",
+                  link: "prompt",
+                  icon: "mdi:console-line",
+                },
+                {
+                  text: "Guard kubectl outside kush",
+                  link: "guard",
+                  icon: "mdi:shield-alert",
+                },
               ],
             },
             {
@@ -127,7 +165,11 @@ export default defineUserConfig({
               icon: "mdi:robot",
               link: "agents",
               items: [
-                { text: "Agents & the plugin", link: "agents", icon: "mdi:robot-happy" },
+                {
+                  text: "Agents Plugins",
+                  link: "agents",
+                  icon: "mdi:robot-happy",
+                },
               ],
             },
           ],
@@ -141,7 +183,11 @@ export default defineUserConfig({
           collapsed: false,
           prefix: "/understanding/",
           items: [
-            { text: "How isolation works", link: "isolation", icon: "mdi:shield-lock" },
+            {
+              text: "How isolation works",
+              link: "isolation",
+              icon: "mdi:shield-lock",
+            },
           ],
         },
       ],
@@ -154,7 +200,11 @@ export default defineUserConfig({
           prefix: "/reference/",
           items: [
             { text: "CLI Reference", link: "cli", icon: "mdi:terminal" },
-            { text: "Configuration", link: "configuration", icon: "mdi:file-cog" },
+            {
+              text: "Configuration",
+              link: "configuration",
+              icon: "mdi:file-cog",
+            },
           ],
         },
       ],

@@ -61,7 +61,7 @@ Behavior depends on whether you're already inside a kush shell:
 - **Inside** a kush shell: re-pins the namespace of the *current* shell in place by editing its temp kubeconfig. Immediate, no new shell spawned, and exempt from the nesting guard.
 - **Outside** a kush shell: spawns a new subshell for your *current* kubectl context, pinned to the given namespace.
 
-Called with no argument, prompts for a namespace as free text (namespace listing isn't offered — kush never makes a cluster API call).
+Called with no argument, prompts for a namespace as free text (namespace listing isn't offered; kush never makes a cluster API call).
 
 **Flags**
 
@@ -88,7 +88,7 @@ kush exec <context> [-n|--namespace <namespace>] -- <command> [args...]
 
 **Description**
 
-Runs a single command against an isolated context, non-interactively — no subshell, no picker. Everything after `--` is passed through as the command and its arguments. `KUBECONFIG` is pinned to a private one-context file for the duration of the call, stdin/stdout/stderr are forwarded, the child's exit code is propagated, and the temp kubeconfig is deleted when the command finishes. Built for scripts, CI, and AI agents that need to touch exactly one cluster without an interactive shell to hang on.
+Runs a single command against an isolated context, non-interactively, with no subshell and no picker. Everything after `--` is passed through as the command and its arguments. `KUBECONFIG` is pinned to a private one-context file for the duration of the call, stdin/stdout/stderr are forwarded, the child's exit code is propagated, and the temp kubeconfig is deleted when the command finishes. Built for scripts, CI, and AI agents that need to touch exactly one cluster without an interactive shell to hang on.
 
 **Flags**
 
@@ -125,7 +125,7 @@ kush current
 
 **Description**
 
-Prints the active context and namespace. Outside a kush shell, prints nothing and exits `0` — it's safe to call unconditionally from a script or prompt.
+Prints the active context and namespace. Outside a kush shell, prints nothing and exits `0`, so it's safe to call unconditionally from a script or prompt.
 
 **Flags**
 
@@ -138,7 +138,7 @@ prod/default
 
 $ exit
 $ kush current
-# (empty — not in a kush shell)
+# (empty, not in a kush shell)
 ```
 :::
 
@@ -152,7 +152,7 @@ kush lint
 
 **Description**
 
-Checks every discovered kubeconfig for common problems: contexts referencing a missing cluster or user, an empty `current-context`, and unreachable file entries. Read-only — it never modifies anything — and exits non-zero if it finds errors, so it's suitable for a CI check.
+Checks every discovered kubeconfig for common problems: contexts referencing a missing cluster or user, an empty `current-context`, and unreachable file entries. Read-only (it never modifies anything), and exits non-zero if it finds errors, so it's suitable for a CI check.
 
 **Flags**
 
@@ -179,7 +179,7 @@ kush split [-o|--out <dir>]
 
 **Description**
 
-Writes one self-contained kubeconfig per discovered context into a target directory, each file containing only that context's cluster and user — the same extract-one shape kush uses internally, but persisted to disk instead of a temp file. Never mutates the source kubeconfig(s). Colliding sanitized filenames are disambiguated automatically.
+Writes one self-contained kubeconfig per discovered context into a target directory, each file containing only that context's cluster and user: the same extract-one shape kush uses internally, but persisted to disk instead of a temp file. Never mutates the source kubeconfig(s). Colliding sanitized filenames are disambiguated automatically.
 
 **Flags**
 
@@ -215,7 +215,7 @@ kush init <bash|zsh|fish>
 
 **Description**
 
-Emits opt-in prompt-fallback shell glue that prepends a `(kush:<ctx>)` marker to your prompt, gated on `KUSH_ACTIVE` so it's a no-op outside a kush shell. Only needed if your prompt engine doesn't already read `KUBECONFIG` or the `KUSH_*` env vars directly — starship's native `kubernetes` module, for example, needs no glue at all.
+Emits opt-in prompt-fallback shell glue that prepends a `(kush:<ctx>)` marker to your prompt, gated on `KUSH_ACTIVE` so it's a no-op outside a kush shell. Only needed if your prompt engine doesn't already read `KUBECONFIG` or the `KUSH_*` env vars directly; starship's native `kubernetes` module, for example, needs no glue at all.
 
 **Flags**
 
@@ -245,7 +245,7 @@ kush completion <bash|zsh|fish>
 
 **Description**
 
-Standard cobra shell-completion script. Once installed, `kush ctx <TAB>`, bare `kush <TAB>`, and `kush exec <TAB>` complete detected context names. `kush ns` stays free-text — completing namespaces would require a cluster API call, which kush never makes.
+Standard cobra shell-completion script. Once installed, `kush ctx <TAB>`, bare `kush <TAB>`, and `kush exec <TAB>` complete detected context names. `kush ns` stays free-text; completing namespaces would require a cluster API call, which kush never makes.
 
 **Flags**
 

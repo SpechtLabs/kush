@@ -7,7 +7,7 @@ config:
     hero:
       name: One shell, one context. Prod in one terminal, dev in another, zero bleed.
       text: Ephemeral, isolated kube-context subshells
-      tagline: A private, throwaway kubeconfig per shell — deleted on exit. Auth-agnostic. No global state to corrupt.
+      tagline: A private, throwaway kubeconfig per shell, deleted on exit. Auth-agnostic. No global state to corrupt.
       image: /logo.png
       actions:
         - text: Get Started →
@@ -31,13 +31,13 @@ config:
         details: Never touches ~/.kube/config or your active context. Run prod and dev side by side in different terminals with no leakage between them.
       - title: Exit = gone
         icon: mdi:delete-clock
-        details: The temp kubeconfig is deleted on exit — normal, signal, or crash (a stale-file sweep reaps anything left by a kill -9).
+        details: The temp kubeconfig is deleted on exit, whether normal, signal, or crash (a stale-file sweep reaps anything left by a kill -9).
       - title: Auth-agnostic
         icon: mdi:key-variant
-        details: Assumes your contexts are already authenticated. exec/OIDC/cloud plugins keep working — kush copies the user block verbatim.
+        details: Assumes your contexts are already authenticated. exec/OIDC/cloud plugins keep working; kush copies the user block verbatim.
       - title: Works with any tool
         icon: mdi:kubernetes
-        details: kubectl, helm, k9s, kustomize, flux, argocd — anything that reads KUBECONFIG is pinned to the one context.
+        details: kubectl, helm, k9s, kustomize, flux, argocd, and anything else that reads KUBECONFIG is pinned to the one context.
       - title: Built for agents too
         icon: mdi:robot-happy
         details: kush exec runs one command in an isolated context non-interactively, with a Claude Code plugin so agentic tools use it correctly.

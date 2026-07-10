@@ -8,8 +8,16 @@ export const navbar = defineNavbarConfig([
     icon: "mdi:rocket-launch",
     items: [
       { text: "Overview", link: "/getting-started/overview", icon: "mdi:eye" },
-      { text: "Installation", link: "/getting-started/installation", icon: "mdi:download" },
-      { text: "Quick Start", link: "/getting-started/quick", icon: "mdi:flash" },
+      {
+        text: "Installation",
+        link: "/getting-started/installation",
+        icon: "mdi:download",
+      },
+      {
+        text: "Quick Start",
+        link: "/getting-started/quick",
+        icon: "mdi:flash",
+      },
     ],
   },
 
@@ -17,12 +25,42 @@ export const navbar = defineNavbarConfig([
     text: "Guides",
     icon: "mdi:compass",
     items: [
-      { text: "Enter a context", link: "/guides/enter-context", icon: "mdi:layers" },
-      { text: "Switch namespaces", link: "/guides/namespaces", icon: "mdi:folder-swap" },
+      {
+        text: "Enter a context",
+        link: "/guides/enter-context",
+        icon: "mdi:layers",
+      },
+      {
+        text: "Switch namespaces",
+        link: "/guides/namespaces",
+        icon: "mdi:folder-swap",
+      },
       { text: "Run one command", link: "/guides/exec", icon: "mdi:play-box" },
-      { text: "Config & discovery", link: "/guides/configuration", icon: "mdi:file-cog" },
-      { text: "Completion & prompt", link: "/guides/completion", icon: "mdi:keyboard" },
-      { text: "Agents & the plugin", link: "/guides/agents", icon: "mdi:robot-happy" },
+      {
+        text: "Config & discovery",
+        link: "/guides/configuration",
+        icon: "mdi:file-cog",
+      },
+      {
+        text: "Tab-completion",
+        link: "/guides/completion",
+        icon: "mdi:keyboard",
+      },
+      {
+        text: "Prompt integration",
+        link: "/guides/prompt",
+        icon: "mdi:console-line",
+      },
+      {
+        text: "Guard kubectl outside kush",
+        link: "/guides/guard",
+        icon: "mdi:shield-alert",
+      },
+      {
+        text: "Agent Plugins",
+        link: "/guides/agents",
+        icon: "mdi:robot-happy",
+      },
     ],
   },
 
@@ -30,7 +68,11 @@ export const navbar = defineNavbarConfig([
     text: "Understanding",
     icon: "mdi:lightbulb",
     items: [
-      { text: "How isolation works", link: "/understanding/isolation", icon: "mdi:shield-lock" },
+      {
+        text: "How isolation works",
+        link: "/understanding/isolation",
+        icon: "mdi:shield-lock",
+      },
     ],
   },
 
@@ -39,7 +81,11 @@ export const navbar = defineNavbarConfig([
     icon: "mdi:book",
     items: [
       { text: "CLI Reference", link: "/reference/cli", icon: "mdi:terminal" },
-      { text: "Configuration", link: "/reference/configuration", icon: "mdi:file-cog" },
+      {
+        text: "Configuration",
+        link: "/reference/configuration",
+        icon: "mdi:file-cog",
+      },
     ],
   },
 

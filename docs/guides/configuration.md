@@ -3,84 +3,82 @@ title: Config & discovery
 createTime: 2026/07/10 10:00:00
 ---
 
-kush works with zero configuration — it reads `$KUBECONFIG` and `~/.kube/config`, just like kubectl. An optional `config.yaml` lets you change where kush looks for contexts, which picker it uses, and which shell it forks.
+kush has to find your kubeconfigs before it can pin one. Out of the box it reads `$KUBECONFIG` and `~/.kube/config`, the same as kubectl, so if that's where your clusters already live there's nothing to configure. This guide is for when they don't: a directory full of per-cluster files, several explicit paths, or a picker or shell you want to change.
 
-## Where the config file lives
+All of it lives in an optional `config.yaml`, read from `~/.config/kush/`, `$XDG_CONFIG_HOME/kush/`, or `/etc/kush/`. No file means defaults. A malformed file is a startup error rather than a silent fallback, so you find out immediately. For the exhaustive key list see the [configuration reference](../reference/configuration.md); below are the setups you'll actually run into.
 
-kush reads `config.yaml` from:
+## "kush can't see all my clusters"
 
-- `~/.config/kush/`
-- `$XDG_CONFIG_HOME/kush/` (if `XDG_CONFIG_HOME` is set)
-- `/etc/kush/`
-
-An absent config file is not an error — kush just falls back to its defaults. A malformed one (invalid YAML) produces a clear error at startup instead of silently ignoring it.
-
-## `context_lookup_locations`
-
-This is the list of places kush looks for kubeconfig files. Each entry supports `$ENV`/`${ENV}` expansion, `~` for your home directory, and globs.
+Almost always this is a kubeconfig layout kush doesn't look in by default. Point it at the extra locations with `context_lookup_locations`:
 
 ```yaml
+# ~/.config/kush/config.yaml
 context_lookup_locations:
   - $KUBECONFIG
   - ~/.kube/config
   - ~/.kube/configs/*
 ```
 
-A few things worth knowing:
+Two things will bite you if you don't know them:
 
-- **Order is precedence.** Entries are checked top to bottom.
-- **`$KUBECONFIG` splits on `:`.** If it holds multiple paths (`~/.kube/config:~/.kube/prod.yaml`), each one is tried in order, same as kubectl's own merge rule.
-- **Setting this replaces the default, it doesn't extend it.** If `context_lookup_locations` is present and non-empty, kush uses exactly what you listed — nothing else. If it's absent, empty, or none of its entries resolve to anything, kush falls back to the default: `$KUBECONFIG` plus `~/.kube/config`.
-
-## Merge order and duplicate contexts
-
-Contexts are merged first-wins: whichever file earlier in `context_lookup_locations` defines a given context name wins. If the same context name shows up in more than one file, kush doesn't silently pick one — it warns on stderr:
+- **The list replaces the default, it doesn't extend it.** The moment you set `context_lookup_locations`, kush looks at exactly what you wrote and nothing else. Keep `$KUBECONFIG` and `~/.kube/config` in the list if you still want them (or leave the key out entirely to keep the defaults).
+- **Order is precedence.** Entries are read top to bottom, and when two files define the same context name the earlier one wins. kush says so on stderr rather than picking silently:
 
 ```
 warning: context "prod" defined in 2 files; using ~/.kube/config
 ```
 
-## Bad files in a glob
+## A directory of per-cluster files
 
-If a glob entry like `~/.kube/configs/*` matches a file that isn't a valid kubeconfig — a stray `.bak`, a README, whatever — kush doesn't error out. It skips that file with a warning and keeps going:
+It's common to keep one kubeconfig per cluster in a directory. Glob the directory and kush picks up every valid file in it:
+
+```yaml
+# ~/.config/kush/config.yaml
+context_lookup_locations:
+  - ~/.kube/config
+  - ~/.kube/configs/*
+```
+
+Mind the extension. Exported kubeconfigs often have no `.yaml` suffix at all (they're named `prod-cluster`, `staging-eks`, and so on), so a glob like `~/.kube/configs/*.yaml` quietly matches nothing and kush finds zero extra contexts. Use a bare `*` unless you know every file ends in `.yaml`.
+
+A bare `*` is safe even in a messy directory: anything that isn't a valid kubeconfig, a stray `.bak` or a README, is skipped with a warning instead of failing the run.
 
 ```
 warning: skipping ~/.kube/configs/notes.txt: not a valid kubeconfig
 ```
 
-So a messy directory of configs just works; you don't have to keep it pristine.
+If you'd rather generate this layout from a single merged kubeconfig, `kush split` writes one self-contained file per context into a directory for you (see the [CLI reference](../reference/cli.md)).
 
-## The `*` vs `*.yaml` gotcha
+## Choosing the picker
 
-Kubeconfig files frequently have no file extension at all — that's how most cloud CLIs export them. If you glob for `~/.kube/configs/*.yaml` and your files are actually named `prod-cluster`, `staging-cluster`, and so on, the glob matches nothing and kush silently finds zero extra contexts.
+When you run `kush` or `kush ctx` with no context name, it opens a picker. `picker` decides which one, and `KUSH_PICKER` overrides it per invocation:
 
-Use `~/.kube/configs/*` instead, unless you know your files genuinely end in `.yaml`. The "skip invalid files" behavior above means a bare `*` is safe even if the directory has other, non-kubeconfig files mixed in.
+- `auto` (default): fzf if it's on your `PATH`, otherwise a built-in TUI.
+- `builtin`: always the built-in TUI, even with fzf installed.
+- `fzf`: always fzf, with a clear error if it isn't installed.
 
-## `picker`
+fzf runs with your full environment, so `FZF_DEFAULT_OPTS`, colors, and keybindings all carry over. kush only adds `--prompt`, `--no-multi`, and `--print-query`.
 
-Controls which context picker `kush ctx` opens with no argument. Env override: `KUSH_PICKER`.
+## Choosing the shell
 
-- `auto` (default) — fzf if it's on `PATH`, otherwise the built-in charm/huh TUI.
-- `builtin` — always the TUI, even if fzf is installed.
-- `fzf` — always fzf; errors clearly if fzf isn't installed.
-
-fzf inherits your full environment when kush shells out to it, so `FZF_DEFAULT_OPTS`, your colors, and your keybindings all apply as normal. kush itself only ever passes `--prompt`, `--no-multi`, and `--print-query`.
-
-## `shell`
-
-The shell kush forks when you enter a context. Default is `$SHELL`, falling back to `/bin/bash` if that's unset. Env override: `KUSH_SHELL`.
-
-Set this explicitly if your interactive shell differs from your login `$SHELL` — the classic case is running fish day to day while `$SHELL` is still set to `/bin/zsh` (common if you switched shells without updating it). Left unconfigured, kush would fork zsh instead of fish, and your subshell's command history and atuin integration would land somewhere you're not looking.
-
-## Complete example
+kush forks `$SHELL` when you enter a context, falling back to `/bin/bash`. Set `shell` (or `KUSH_SHELL`) when your interactive shell isn't your login `$SHELL`:
 
 ```yaml
+# ~/.config/kush/config.yaml
+shell: /opt/homebrew/bin/fish
+```
+
+The case that catches people: you run fish all day, but `$SHELL` still says `/bin/zsh` because you changed shells without updating it. Left alone, kush forks zsh, and your history and tools like atuin write somewhere you're not looking. Pinning `shell` keeps the subshell the one you actually live in.
+
+## A complete config.yaml
+
+```yaml
+# ~/.config/kush/config.yaml
 context_lookup_locations:
   - $KUBECONFIG
   - ~/.kube/config
   - ~/.kube/configs/*
 
 picker: fzf
-
 shell: /opt/homebrew/bin/fish
 ```
