@@ -23,8 +23,22 @@ jobs:
       - name: Set up mise
         uses: jdx/mise-action@v4
 
+      - name: Restore custom-gcl cache
+        id: custom-gcl-cache
+        uses: actions/cache@v4
+        with:
+          path: custom-gcl
+          key: custom-gcl-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.custom-gcl.yml', '.mise.toml') }}
+
       - name: Lint
+        if: steps.custom-gcl-cache.outputs.cache-hit != 'true'
         run: mise run lint
+
+      - name: Lint with cached custom-gcl
+        if: steps.custom-gcl-cache.outputs.cache-hit == 'true'
+        run: |
+          chmod +x ./custom-gcl
+          ./custom-gcl run ./...
 
   test:
     name: Unit Tests
