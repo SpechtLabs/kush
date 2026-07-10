@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "kush",
+  "description": "Claude Code plugins for kush — ephemeral, isolated kube-context subshells.",
+  "owner": {
+    "name": "Specht Labs",
+    "email": "cedric@specht-labs.de"
+  },
+  "plugins": [
+    {
+      "name": "kush",
+      "description": "Teaches agents to run isolated, non-interactive Kubernetes commands against a specific context with `kush exec`, and to avoid the interactive subshell commands that would hang an agent.",
+      "source": "./plugins/kush",
+      "version": "0.1.0",
+      "author": {
+        "name": "Cedric Specht",
+        "email": "cedric@specht-labs.de"
+      },
+      "category": "development"
+    }
+  ]
+}

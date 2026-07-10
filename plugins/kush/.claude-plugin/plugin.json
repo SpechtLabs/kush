@@ -1,0 +1,11 @@
+{
+  "name": "kush",
+  "description": "Teaches agentic tools to run isolated, non-interactive Kubernetes commands against a specific context using `kush exec`, and to avoid the interactive subshell commands.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Cedric Specht",
+    "email": "cedric@specht-labs.de"
+  },
+  "homepage": "https://github.com/SpechtLabs/kush",
+  "repository": "https://github.com/SpechtLabs/kush"
+}
