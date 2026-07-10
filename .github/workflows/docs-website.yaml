@@ -22,9 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
-      - uses: DavidAnson/markdownlint-cli2-action@v22
+      - uses: DavidAnson/markdownlint-cli2-action@v24
         with:
           globs: "docs/**/*.md"
 
@@ -33,7 +33,7 @@ jobs:
     name: Build (Docs)
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -51,7 +51,7 @@ jobs:
         # Skipping the upload on PRs avoids spending Actions artifact storage on
         # builds that never deploy.
         if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: docs
           path: docs/.vuepress/dist
@@ -68,7 +68,7 @@ jobs:
       pages: write
     steps:
       - name: Download Artifacts for Website
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: docs
           path: ./dist

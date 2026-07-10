@@ -31,7 +31,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: marocchino/sticky-pull-request-comment@v2
+      - uses: marocchino/sticky-pull-request-comment@v3.0.5
         # When the previous step fails, the workflow would stop. This condition
         # lets it continue so the populated error message is posted as a comment.
         if: always() && (steps.lint_pr_title.outputs.error_message != null)
@@ -50,7 +50,7 @@ jobs:
 
       # Delete the previous comment once the title is fixed.
       - if: ${{ steps.lint_pr_title.outputs.error_message == null }}
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3.0.5
         with:
           header: pr-title-lint-error
           delete: true
