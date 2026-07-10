@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	humane "github.com/sierrasoftworks/humane-errors-go"
+	"github.com/spechtlabs/kush/internal/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -51,7 +52,11 @@ func initConfig() {
 
 	viper.SetEnvPrefix("KUSH")
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
-	viper.AutomaticEnv()
+	// Bind only the picker mode to an env override (KUSH_PICKER). We deliberately
+	// do NOT use viper.AutomaticEnv(): it would bind KUSH_CONTEXT_LOOKUP_LOCATIONS
+	// and whitespace-split it (not PathListSeparator), which is spec-inconsistent —
+	// lookup locations are configured via the file only.
+	_ = viper.BindEnv(config.KeyPicker)
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, notFound := err.(viper.ConfigFileNotFoundError); !notFound {
