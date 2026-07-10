@@ -16,7 +16,7 @@ markdownlint-cli2 = "0.18.1"
 # Kubernetes tools
 kustomize = "5.6.0" # Pin version for reproducible manifest builds across tasks/CI
 kind = "0.31.0"
-kubectl = "1.35.0"
+kubectl = "1.36.2"
 k9s = "0.51.0"
 yq = "4.50.1"
 yamllint = "1.38.0"
