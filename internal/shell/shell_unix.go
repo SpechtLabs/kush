@@ -6,6 +6,7 @@ package shell
 
 import (
 	"context"
+	"errors"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -38,7 +39,15 @@ func Run(ctx context.Context, kubeconfig string, extraEnv []string) error {
 	setupSignalHandler(ctx, cancel, cmd)
 
 	if err := cmd.Run(); err != nil {
-		return humane.Wrap(err, "subshell exited with an error", "this usually just reflects the last command's exit code inside the shell")
+		// A non-zero exit from an interactive shell just reflects the last
+		// command inside it (or `exit N` / Ctrl-C) — that is normal for a
+		// subshell, not a kush failure, so don't surface it. Only a genuine
+		// failure to start/run the shell process is worth reporting.
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
+			return nil
+		}
+		return humane.Wrap(err, "failed to run subshell", "check that $SHELL points at a valid, executable shell")
 	}
 	return nil
 }
