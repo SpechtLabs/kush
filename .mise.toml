@@ -1,0 +1,26 @@
+
+[tools]
+# Go version from your go.mod file
+go = "1.26.1"
+"go:golang.org/x/tools/gopls" = "0.21.0"
+"go:github.com/go-delve/delve/cmd/dlv" = "1.25.2"
+
+# Pre-commit for Git hooks
+pre-commit = "4.3.0"
+
+# linter
+golangci-lint = "2.8.0"
+node = "24.11.1"
+npm = "11.5.1"
+markdownlint-cli2 = "0.18.1"
+
+# Kubernetes tools
+kustomize = "5.6.0" # Pin version for reproducible manifest builds across tasks/CI
+kind = "0.31.0"
+kubectl = "1.35.0"
+k9s = "0.51.0"
+yq = "4.50.1"
+yamllint = "1.37.1"
+
+# doc tools
+"npm:markdown-link-check" = "3.14.1"

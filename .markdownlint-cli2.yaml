@@ -1,0 +1,45 @@
+config:
+  # Default state for all rules
+  default: true
+
+  # MD013: Disable line length rule
+  MD013: false
+  MD024: false
+  MD038: false
+  MD060: false
+
+  # MD033: Allow specific inline HTML for MkDocs Material features
+  MD033:
+    allowed_elements:
+      - div
+      - br
+      - p
+      - img
+
+  # MD040: Require language specification for fenced code blocks
+  # All code blocks must have a language tag for syntax highlighting
+  MD040: true
+
+  # MD046: Disable code block style rule
+  # MkDocs admonitions use 4-space indentation which triggers false positives
+  MD046: false
+
+# Include all Markdown files in the project
+globs:
+  - "**/*.md"
+
+# Ignore node_modules directory and other common patterns
+ignores:
+  - "docs/node_modules/**"
+  - ".git/**"
+  - "vendor/**"
+  - CHANGELOG.md
+  # Agent tooling configuration (not project documentation):
+  # rules, skills, and memory files are imported from external sources
+  # and follow their upstream formatting conventions.
+  - ".claude/**"
+  - ".cursor/**"
+  # Agent workflow scratch (brainstorm/plan docs) — not project documentation,
+  # gitignored, and follow their own formatting conventions.
+  - ".superpowers/**"
+  - "docs/superpowers/**"

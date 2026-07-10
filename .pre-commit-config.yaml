@@ -1,0 +1,34 @@
+repos:
+  - repo: https://github.com/SpechtLabs/golint-sl
+    rev: v0.1.10 # Use the latest release
+    hooks:
+      - id: golint-sl
+
+  # Generic pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0 # Use the latest version from https://github.com/pre-commit/pre-commit-hooks/releases
+    hooks:
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: check-case-conflict
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+        exclude: ^pkg/swagger/
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-json
+      - id: mixed-line-ending
+      - id: check-added-large-files
+        name: check for added large files
+        description: Prevents giant files from being committed
+        args: ["--maxkb=500"]
+
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.18.1
+    hooks:
+      - id: markdownlint-cli2
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.28.0 # Use the latest version
+    hooks:
+      - id: gitleaks
