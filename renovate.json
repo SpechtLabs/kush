@@ -74,6 +74,16 @@
       "dependencyDashboardApproval": false
     },
     {
+      "description": "Do not manage npm as a separate mise tool; Node provides npm.",
+      "matchFileNames": [
+        ".mise.toml"
+      ],
+      "matchDepNames": [
+        "npm"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Group Go module updates together.",
       "matchManagers": [
         "gomod"
