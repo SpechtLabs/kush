@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -45,9 +44,5 @@ func initConfig() {
 // AddSubcommands wires every non-root subcommand. Phase 1 registers nothing new
 // beyond version; later phases extend this.
 func AddSubcommands(root *cobra.Command) {
-	// ctx, ns, current, exec, lint, split, init added in later tasks.
+	root.AddCommand(cmdCtx)
 }
-
-// runCtx is implemented in ctx.go (Task 6). Stub so the root command compiles
-// standalone; Task 6 removes this stub.
-func runCtx(ctx context.Context, ctxName, namespace string) error { return nil }
