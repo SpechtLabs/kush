@@ -3,12 +3,41 @@ title: Installation
 createTime: 2026/07/10 10:00:00
 ---
 
-kush ships as a single Go binary. Two ways to get it:
+kush ships as a single Go binary. Install it with Homebrew, `go install`, or a prebuilt release binary. kush is unix-only in v1: no Windows binaries, no `cmd.exe`/PowerShell support.
 
-- **Go install**: build it yourself with `go install`, pulling directly from the module.
-- **Release binaries**: grab a prebuilt binary from the [GitHub releases page](https://github.com/spechtlabs/kush/releases).
+:::: tabs
 
-kush is unix-only in v1: no Windows binaries, no `cmd.exe`/PowerShell support.
+@tab Homebrew
+
+The quickest way on macOS or Linux is the Specht Labs tap:
+
+::: terminal Install with Homebrew
+
+```shell
+brew install spechtlabs/tap/kush
+```
+
+:::
+
+That adds the tap and installs kush in one step, so `brew upgrade` keeps it current. The cask ships an unsigned binary and clears the macOS quarantine flag for you, so it runs without a Gatekeeper prompt.
+
+@tab go install
+
+Build it yourself straight from the module:
+
+::: terminal Build from source
+
+```shell
+go install github.com/spechtlabs/kush/cmd/kush@latest
+```
+
+:::
+
+@tab Release binary
+
+Grab a prebuilt binary for your platform from the [GitHub releases page](https://github.com/spechtlabs/kush/releases), then move it onto your `PATH`.
+
+::::
 
 ## Optional: fzf
 

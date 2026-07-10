@@ -21,10 +21,13 @@ It's also auth-agnostic: kush copies the user block from your existing kubeconfi
 
 ## Install
 
-kush is unix-only in v1 (no Windows, no `cmd.exe`/PowerShell). Two ways to get it:
+kush is unix-only in v1 (no Windows, no `cmd.exe`/PowerShell).
 
 ```shell
-# Build from source
+# Homebrew (macOS/Linux)
+brew install spechtlabs/tap/kush
+
+# or build from source
 go install github.com/spechtlabs/kush/cmd/kush@latest
 ```
 
