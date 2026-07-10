@@ -43,24 +43,24 @@ func init() {
 func listContexts(cmd *cobra.Command) error {
 	cfg, err := resolveLoad(cmd.ErrOrStderr())
 	if err != nil {
-		return err
+		return humane.Wrap(err, "cannot list contexts", "verify your kubeconfig locations with 'kush lint'")
 	}
 	out := cmd.OutOrStdout()
 	for _, name := range kubeconfig.Contexts(cfg) {
 		if name == cfg.CurrentContext {
-			fmt.Fprintf(out, "%s (current)\n", name)
+			_, _ = fmt.Fprintf(out, "%s (current)\n", name)
 			continue
 		}
-		fmt.Fprintln(out, name)
+		_, _ = fmt.Fprintln(out, name)
 	}
 	return nil
 }
 
 // runCtx enters an isolated subshell for ctxName at the optional namespace.
-// An empty ctxName means "use the picker" (wired in Phase 2).
+// An empty ctxName means "open the picker".
 func runCtx(ctx context.Context, warnOut io.Writer, ctxName, namespace string) error {
 	if err := state.GuardNesting(); err != nil {
-		return err
+		return humane.Wrap(err, "cannot enter a context", "exit the current kush shell first")
 	}
 
 	// Opportunistic stale-file cleanup; never blocks the invocation.
@@ -70,7 +70,7 @@ func runCtx(ctx context.Context, warnOut io.Writer, ctxName, namespace string) e
 
 	cfg, err := resolveLoad(warnOut)
 	if err != nil {
-		return err
+		return humane.Wrap(err, "cannot load kubeconfig", "verify your kubeconfig locations with 'kush lint'")
 	}
 
 	if ctxName == "" {
@@ -78,24 +78,25 @@ func runCtx(ctx context.Context, warnOut io.Writer, ctxName, namespace string) e
 		if len(names) == 0 {
 			return humane.New("no contexts found in KUBECONFIG", "check that KUBECONFIG points at a kubeconfig with at least one context")
 		}
-		mode, err := pickerMode()
+		var mode picker.Mode
+		mode, err = pickerMode()
 		if err != nil {
-			return err
+			return humane.Wrap(err, "cannot determine the context picker", "check the 'picker' config value or KUSH_PICKER")
 		}
 		ctxName, err = picker.Select(ctx, mode, "kush ctx> ", names)
 		if err != nil {
-			return err
+			return humane.Wrap(err, "context selection failed", "pick a context or pass one as an argument")
 		}
 	}
 
 	out, err := kubeconfig.Extract(cfg, ctxName, namespace)
 	if err != nil {
-		return err
+		return humane.Wrap(err, fmt.Sprintf("cannot isolate context %q", ctxName), "run 'kush lint' to find broken context references")
 	}
 
 	path, err := tempkube.WriteTemp(out, ctxName)
 	if err != nil {
-		return err
+		return humane.Wrap(err, "cannot write the temporary kubeconfig", "check space and permissions in $XDG_RUNTIME_DIR")
 	}
 	defer func() { _ = os.Remove(path) }()
 

@@ -20,26 +20,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Setup Go
-        uses: actions/setup-go@v6
-        with:
-          go-version-file: "go.mod"
-          cache: true
-          cache-dependency-path: "**/*.sum"
+      - name: Set up mise
+        uses: jdx/mise-action@v2
 
-      - name: GolangCI Lint
-        uses: golangci/golangci-lint-action@v9
-        with:
-          version: latest
-
-      - name: Run format-check
-        run: |
-          UNFORMATTED=$(gofmt -l .)
-          if [ -n "$UNFORMATTED" ]; then
-            echo "The following files are not formatted according to gofmt:"
-            echo "$UNFORMATTED"
-            exit 1
-          fi
+      - name: Lint
+        run: mise run lint
 
   test:
     name: Unit Tests
@@ -48,15 +33,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Setup Go
-        uses: actions/setup-go@v6
-        with:
-          go-version-file: "go.mod"
-          cache: true
-          cache-dependency-path: "**/*.sum"
+      - name: Set up mise
+        uses: jdx/mise-action@v2
 
       - name: Run tests
-        run: go test -race -cover -covermode=atomic -coverprofile=coverage.txt ./...
+        run: mise run test
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5

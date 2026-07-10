@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -36,7 +37,7 @@ func init() {
 
 func runExec(ctx context.Context, warnOut io.Writer, ctxName, namespace string, argv []string) error {
 	if err := state.GuardNesting(); err != nil {
-		return err
+		return humane.Wrap(err, "cannot run exec", "exit the current kush shell first")
 	}
 	if dir, err := tempkube.TempDir(); err == nil {
 		tempkube.SweepStale(dir)
@@ -44,15 +45,15 @@ func runExec(ctx context.Context, warnOut io.Writer, ctxName, namespace string, 
 
 	cfg, err := resolveLoad(warnOut)
 	if err != nil {
-		return err
+		return humane.Wrap(err, "cannot load kubeconfig", "verify your kubeconfig locations with 'kush lint'")
 	}
 	out, err := kubeconfig.Extract(cfg, ctxName, namespace)
 	if err != nil {
-		return err
+		return humane.Wrap(err, fmt.Sprintf("cannot isolate context %q", ctxName), "run 'kush lint' to find broken context references")
 	}
 	path, err := tempkube.WriteTemp(out, ctxName)
 	if err != nil {
-		return err
+		return humane.Wrap(err, "cannot write the temporary kubeconfig", "check space and permissions in $XDG_RUNTIME_DIR")
 	}
 	// On SIGINT (Ctrl-C) the parent process dies before this defer runs, so
 	// cleanup falls to SweepStale on the next invocation (the sweep is the
@@ -66,6 +67,7 @@ func runExec(ctx context.Context, warnOut io.Writer, ctxName, namespace string, 
 	var exitErr *exec.ExitError
 	if errors.As(err, &exitErr) {
 		_ = os.Remove(path) // os.Exit skips the deferred cleanup; delete the creds now
+		//nolint:gocritic // exitAfterDefer: the temp file is removed explicitly above before os.Exit
 		os.Exit(exitErr.ExitCode())
 	}
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 
+	humane "github.com/sierrasoftworks/humane-errors-go"
 	"github.com/spechtlabs/kush/internal/config"
 	"github.com/spechtlabs/kush/internal/picker"
 	"github.com/spechtlabs/kush/pkg/kubeconfig"
@@ -16,10 +17,10 @@ import (
 func resolveLoad(warnOut io.Writer) (*api.Config, error) {
 	cfg, warnings, err := kubeconfig.LoadResolved(config.LookupLocations())
 	if err != nil {
-		return nil, err
+		return nil, humane.Wrap(err, "cannot load kubeconfig locations", "check context_lookup_locations in your kush config")
 	}
 	for _, w := range warnings {
-		fmt.Fprintln(warnOut, "warning:", w.Message)
+		_, _ = fmt.Fprintln(warnOut, "warning:", w.Message)
 	}
 	return cfg, nil
 }
@@ -28,7 +29,7 @@ func resolveLoad(warnOut io.Writer) (*api.Config, error) {
 func pickerMode() (picker.Mode, error) {
 	m, err := config.Picker()
 	if err != nil {
-		return picker.Auto, err
+		return picker.Auto, humane.Wrap(err, "invalid picker configuration", "set 'picker' to auto, builtin, or fzf")
 	}
 	switch m {
 	case config.PickerBuiltin:

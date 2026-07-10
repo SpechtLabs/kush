@@ -20,6 +20,9 @@ func Load() (*api.Config, error) {
 
 // LoadFrom merges kubeconfigs using the supplied loading rules.
 func LoadFrom(rules *clientcmd.ClientConfigLoadingRules) (*api.Config, error) {
+	if rules == nil {
+		return nil, humane.New("no kubeconfig loading rules provided", "pass a non-nil *clientcmd.ClientConfigLoadingRules")
+	}
 	cfg, err := rules.Load()
 	if err != nil {
 		return nil, humane.Wrap(err, "failed to load kubeconfig", "check that KUBECONFIG points at readable files")

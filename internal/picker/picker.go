@@ -24,13 +24,16 @@ func fzfPath() (string, bool) {
 type Mode int
 
 const (
+	// Auto uses fzf if present, otherwise the built-in TUI.
 	Auto Mode = iota
+	// Builtin always uses the built-in TUI.
 	Builtin
+	// Fzf always uses fzf.
 	Fzf
 )
 
 // resolvePicker decides whether to shell out to fzf for the given mode.
-func resolvePicker(mode Mode, fzfAvailable bool) (bool, error) {
+func resolvePicker(mode Mode, fzfAvailable bool) (bool, humane.Error) {
 	switch mode {
 	case Builtin:
 		return false, nil
@@ -45,14 +48,14 @@ func resolvePicker(mode Mode, fzfAvailable bool) (bool, error) {
 }
 
 // Select returns the item the user chooses from items.
-func Select(ctx context.Context, mode Mode, prompt string, items []string) (string, error) {
+func Select(ctx context.Context, mode Mode, prompt string, items []string) (string, humane.Error) {
 	if len(items) == 0 {
 		return "", humane.New("nothing to choose from", "the list passed to the picker was empty")
 	}
 	path, available := fzfPath()
 	useFzf, err := resolvePicker(mode, available)
 	if err != nil {
-		return "", err
+		return "", humane.Wrap(err, "cannot open the context picker", "set picker to auto, builtin, or fzf")
 	}
 	if useFzf {
 		return fzfSelect(ctx, path, prompt, items)
@@ -61,11 +64,11 @@ func Select(ctx context.Context, mode Mode, prompt string, items []string) (stri
 }
 
 // Prompt returns a free-text value the user types.
-func Prompt(ctx context.Context, mode Mode, prompt string) (string, error) {
+func Prompt(ctx context.Context, mode Mode, prompt string) (string, humane.Error) {
 	path, available := fzfPath()
 	useFzf, err := resolvePicker(mode, available)
 	if err != nil {
-		return "", err
+		return "", humane.Wrap(err, "cannot open the input picker", "set picker to auto, builtin, or fzf")
 	}
 	if useFzf {
 		return fzfPrompt(ctx, path, prompt)
@@ -73,7 +76,7 @@ func Prompt(ctx context.Context, mode Mode, prompt string) (string, error) {
 	return huhInput(prompt)
 }
 
-func fzfSelect(ctx context.Context, path, prompt string, items []string) (string, error) {
+func fzfSelect(ctx context.Context, path, prompt string, items []string) (string, humane.Error) {
 	cmd := exec.CommandContext(ctx, path, "--prompt="+prompt, "--no-multi")
 	cmd.Env = os.Environ()
 	cmd.Stdin = strings.NewReader(strings.Join(items, "\n"))
@@ -81,7 +84,7 @@ func fzfSelect(ctx context.Context, path, prompt string, items []string) (string
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
-		return "", humane.Wrap(err, "fzf selection cancelled", "pick an entry or set a context explicitly: kush <context>")
+		return "", humane.Wrap(err, "fzf selection canceled", "pick an entry or set a context explicitly: kush <context>")
 	}
 	sel := strings.TrimSpace(out.String())
 	if sel == "" {
@@ -90,7 +93,7 @@ func fzfSelect(ctx context.Context, path, prompt string, items []string) (string
 	return sel, nil
 }
 
-func fzfPrompt(ctx context.Context, path, prompt string) (string, error) {
+func fzfPrompt(ctx context.Context, path, prompt string) (string, humane.Error) {
 	// Empty input + --print-query returns whatever the user typed on the query line.
 	cmd := exec.CommandContext(ctx, path, "--prompt="+prompt, "--print-query", "--no-multi")
 	cmd.Env = os.Environ()
@@ -107,7 +110,7 @@ func fzfPrompt(ctx context.Context, path, prompt string) (string, error) {
 	return val, nil
 }
 
-func huhSelect(prompt string, items []string) (string, error) {
+func huhSelect(prompt string, items []string) (string, humane.Error) {
 	var selected string
 	opts := make([]huh.Option[string], 0, len(items))
 	for _, it := range items {
@@ -115,16 +118,16 @@ func huhSelect(prompt string, items []string) (string, error) {
 	}
 	err := huh.NewSelect[string]().Title(prompt).Options(opts...).Value(&selected).Run()
 	if err != nil {
-		return "", humane.Wrap(err, "selection cancelled", "pick an entry or set the value explicitly on the command line")
+		return "", humane.Wrap(err, "selection canceled", "pick an entry or set the value explicitly on the command line")
 	}
 	return selected, nil
 }
 
-func huhInput(prompt string) (string, error) {
+func huhInput(prompt string) (string, humane.Error) {
 	var val string
 	err := huh.NewInput().Title(prompt).Value(&val).Run()
 	if err != nil {
-		return "", humane.Wrap(err, "input cancelled", "type a value, or pass it explicitly on the command line")
+		return "", humane.Wrap(err, "input canceled", "type a value, or pass it explicitly on the command line")
 	}
 	val = strings.TrimSpace(val)
 	if val == "" {

@@ -31,9 +31,9 @@ func TestTempDirUsesXDGRuntime(t *testing.T) {
 	if dir != filepath.Join(base, "kush") {
 		t.Fatalf("TempDir() = %q, want %q", dir, filepath.Join(base, "kush"))
 	}
-	info, err := os.Stat(dir)
-	if err != nil {
-		t.Fatalf("stat temp dir: %v", err)
+	info, statErr := os.Stat(dir)
+	if statErr != nil {
+		t.Fatalf("stat temp dir: %v", statErr)
 	}
 	if info.Mode().Perm() != 0o700 {
 		t.Fatalf("temp dir mode = %o, want 700", info.Mode().Perm())
@@ -52,9 +52,9 @@ func TestTempDirEnforcesMode(t *testing.T) {
 		t.Fatalf("TempDir() error = %v", err)
 	}
 
-	info, err := os.Stat(dir)
-	if err != nil {
-		t.Fatalf("stat temp dir: %v", err)
+	info, statErr := os.Stat(dir)
+	if statErr != nil {
+		t.Fatalf("stat temp dir: %v", statErr)
 	}
 	if info.Mode().Perm() != 0o700 {
 		t.Fatalf("temp dir mode = %o, want 700", info.Mode().Perm())
@@ -69,11 +69,11 @@ func TestWriteTemp(t *testing.T) {
 	if err != nil {
 		t.Fatalf("WriteTemp() error = %v", err)
 	}
-	defer os.Remove(path)
+	defer func() { _ = os.Remove(path) }()
 
-	info, err := os.Stat(path)
-	if err != nil {
-		t.Fatalf("stat temp file: %v", err)
+	info, statErr := os.Stat(path)
+	if statErr != nil {
+		t.Fatalf("stat temp file: %v", statErr)
 	}
 	if info.Mode().Perm() != 0o600 {
 		t.Fatalf("temp file mode = %o, want 600", info.Mode().Perm())
@@ -83,9 +83,9 @@ func TestWriteTemp(t *testing.T) {
 	}
 
 	// Round-trips as a valid kubeconfig.
-	reloaded, err := clientcmd.LoadFromFile(path)
-	if err != nil {
-		t.Fatalf("reload temp file: %v", err)
+	reloaded, loadErr := clientcmd.LoadFromFile(path)
+	if loadErr != nil {
+		t.Fatalf("reload temp file: %v", loadErr)
 	}
 	if reloaded.CurrentContext != "prod" {
 		t.Fatalf("reloaded current-context = %q, want prod", reloaded.CurrentContext)
@@ -101,7 +101,7 @@ func TestWriteTempSanitizesContextName(t *testing.T) {
 	if err != nil {
 		t.Fatalf("WriteTemp() error = %v", err)
 	}
-	defer os.Remove(path)
+	defer func() { _ = os.Remove(path) }()
 	if strings.ContainsRune(filepath.Base(path), '/') {
 		t.Fatalf("temp file name contains path separator: %q", filepath.Base(path))
 	}

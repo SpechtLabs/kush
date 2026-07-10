@@ -10,9 +10,13 @@ import (
 )
 
 const (
-	EnvActive     = "KUSH_ACTIVE"
-	EnvContext    = "KUSH_CONTEXT"
-	EnvNamespace  = "KUSH_NAMESPACE"
+	// EnvActive marks a process as running inside a kush subshell (value "1").
+	EnvActive = "KUSH_ACTIVE"
+	// EnvContext holds the pinned context name.
+	EnvContext = "KUSH_CONTEXT"
+	// EnvNamespace holds the pinned namespace.
+	EnvNamespace = "KUSH_NAMESPACE"
+	// EnvKubeconfig holds the path to the private temp kubeconfig.
 	EnvKubeconfig = "KUSH_KUBECONFIG"
 
 	activeValue = "1"
@@ -43,7 +47,7 @@ func Current() (State, bool) {
 }
 
 // GuardNesting returns an error if we are already inside a kush subshell.
-func GuardNesting() error {
+func GuardNesting() humane.Error {
 	if Active() {
 		return humane.New(
 			fmt.Sprintf("already in a kush shell (%s)", os.Getenv(EnvContext)),

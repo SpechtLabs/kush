@@ -8,8 +8,10 @@ import (
 )
 
 const (
+	// LevelError marks a finding that should fail a lint run.
 	LevelError = "error"
-	LevelWarn  = "warning"
+	// LevelWarn marks a non-fatal advisory finding.
+	LevelWarn = "warning"
 )
 
 // Finding is one lint result.

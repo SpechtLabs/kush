@@ -13,7 +13,7 @@ import (
 
 // TempDir resolves and creates the private kush temp directory (mode 0700):
 // $XDG_RUNTIME_DIR/kush when set, else os.TempDir()/kush.
-func TempDir() (string, error) {
+func TempDir() (string, humane.Error) {
 	base := os.Getenv("XDG_RUNTIME_DIR")
 	if base == "" {
 		base = os.TempDir()
@@ -40,24 +40,24 @@ func sanitizeContext(name string) string {
 
 // WriteTemp writes cfg to a fresh 0600 file named <ctx>-<pid>-<rand>.yaml inside
 // the kush temp dir and returns its path.
-func WriteTemp(cfg *api.Config, ctxName string) (string, error) {
+func WriteTemp(cfg *api.Config, ctxName string) (string, humane.Error) {
 	dir, err := TempDir()
 	if err != nil {
-		return "", err
+		return "", humane.Wrap(err, "cannot prepare the kush temp directory", "check space and permissions in $XDG_RUNTIME_DIR")
 	}
 	pattern := sanitizeContext(ctxName) + "-" + strconv.Itoa(os.Getpid()) + "-*.yaml"
-	f, err := os.CreateTemp(dir, pattern)
-	if err != nil {
-		return "", humane.Wrap(err, "failed to create temp kubeconfig", "check available space and permissions in the kush temp dir")
+	f, ferr := os.CreateTemp(dir, pattern)
+	if ferr != nil {
+		return "", humane.Wrap(ferr, "failed to create temp kubeconfig", "check available space and permissions in the kush temp dir")
 	}
 	path := f.Name()
-	if err := f.Close(); err != nil {
+	if cerr := f.Close(); cerr != nil {
 		_ = os.Remove(path)
-		return "", humane.Wrap(err, "failed to close temp kubeconfig", "the temp file may be left behind; remove it manually: "+path)
+		return "", humane.Wrap(cerr, "failed to close temp kubeconfig", "the temp file may be left behind; remove it manually: "+path)
 	}
-	if err := clientcmd.WriteToFile(*cfg, path); err != nil {
+	if werr := clientcmd.WriteToFile(*cfg, path); werr != nil {
 		_ = os.Remove(path)
-		return "", humane.Wrap(err, "failed to write temp kubeconfig "+path, "check available space in the kush temp dir")
+		return "", humane.Wrap(werr, "failed to write temp kubeconfig "+path, "check available space in the kush temp dir")
 	}
 	return path, nil
 }

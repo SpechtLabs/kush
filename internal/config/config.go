@@ -16,15 +16,21 @@ import (
 type PickerMode int
 
 const (
-	PickerAuto    PickerMode = iota // fzf if present, else the built-in TUI
-	PickerBuiltin                   // always the built-in TUI
-	PickerFzf                       // always fzf (error if not installed)
+	// PickerAuto uses fzf if present, otherwise the built-in TUI.
+	PickerAuto PickerMode = iota
+	// PickerBuiltin always uses the built-in TUI.
+	PickerBuiltin
+	// PickerFzf always uses fzf and errors if it is not installed.
+	PickerFzf
 )
 
 const (
+	// KeyLookupLocations is the config key holding the context lookup locations.
 	KeyLookupLocations = "context_lookup_locations"
-	KeyPicker          = "picker"
-	KeyShell           = "shell"
+	// KeyPicker is the config key holding the picker mode.
+	KeyPicker = "picker"
+	// KeyShell is the config key holding the subshell override.
+	KeyShell = "shell"
 )
 
 // Shell returns the shell kush should fork for a subshell, or "" to fall back
@@ -37,7 +43,7 @@ func Shell() string {
 
 // ParsePicker maps a config string to a PickerMode. "" and "auto" → PickerAuto;
 // an unrecognized value is an error.
-func ParsePicker(s string) (PickerMode, error) {
+func ParsePicker(s string) (PickerMode, humane.Error) {
 	switch strings.ToLower(strings.TrimSpace(s)) {
 	case "", "auto":
 		return PickerAuto, nil
@@ -51,7 +57,7 @@ func ParsePicker(s string) (PickerMode, error) {
 }
 
 // Picker returns the configured picker mode (default PickerAuto).
-func Picker() (PickerMode, error) {
+func Picker() (PickerMode, humane.Error) {
 	return ParsePicker(viper.GetString(KeyPicker))
 }
 

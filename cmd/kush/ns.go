@@ -34,24 +34,24 @@ func runNs(cmd *cobra.Command, namespace string) error {
 		if namespace == "" {
 			mode, err := pickerMode()
 			if err != nil {
-				return err
+				return humane.Wrap(err, "cannot determine the namespace picker", "check the 'picker' config value or KUSH_PICKER")
 			}
 			namespace, err = picker.Prompt(ctx, mode, "kush ns> ")
 			if err != nil {
-				return err
+				return humane.Wrap(err, "namespace prompt failed", "pass a namespace as an argument instead")
 			}
 		}
 		if err := kubeconfig.SetNamespace(st.Kubeconfig, namespace); err != nil {
-			return err
+			return humane.Wrap(err, "cannot re-pin the namespace", "check that the temporary kubeconfig still exists")
 		}
-		fmt.Fprintf(cmd.OutOrStdout(), "namespace re-pinned to %q (kubectl and prompt update from the kubeconfig file)\n", namespace)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "namespace re-pinned to %q (kubectl and prompt update from the kubeconfig file)\n", namespace)
 		return nil
 	}
 
 	// Outside a kush shell: spawn a subshell for the CURRENT context at namespace.
 	cfg, err := resolveLoad(cmd.ErrOrStderr())
 	if err != nil {
-		return err
+		return humane.Wrap(err, "cannot load kubeconfig", "verify your kubeconfig locations with 'kush lint'")
 	}
 	if cfg.CurrentContext == "" {
 		return humane.New("no current context set", "run `kush <context>` or `kubectl config use-context <ctx>` first")
@@ -59,11 +59,11 @@ func runNs(cmd *cobra.Command, namespace string) error {
 	if namespace == "" {
 		mode, err := pickerMode()
 		if err != nil {
-			return err
+			return humane.Wrap(err, "cannot determine the namespace picker", "check the 'picker' config value or KUSH_PICKER")
 		}
 		namespace, err = picker.Prompt(ctx, mode, "kush ns> ")
 		if err != nil {
-			return err
+			return humane.Wrap(err, "namespace prompt failed", "pass a namespace as an argument instead")
 		}
 	}
 	return runCtx(ctx, cmd.ErrOrStderr(), cfg.CurrentContext, namespace)

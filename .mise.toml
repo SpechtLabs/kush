@@ -25,3 +25,24 @@ yamllint = "1.38.0"
 "npm:markdown-link-check" = "3.14.1"
 bun = "1.3.14"
 goreleaser = "2.17.0"
+
+[tasks.build]
+description = "Build the kush binary into bin/"
+run = "go build -o bin/kush ./cmd/kush/"
+
+[tasks.test]
+description = "Run the test suite with race detector and coverage"
+run = "go test -race -covermode=atomic -coverprofile=coverage.txt ./..."
+
+# golint-sl runs as a golangci-lint module plugin, so it has to be compiled into
+# a custom binary (./custom-gcl). Rebuilds only when .custom-gcl.yml changes.
+[tasks.lint-build]
+description = "Build the custom-gcl binary with the golint-sl plugin baked in"
+run = "golangci-lint custom"
+sources = [".custom-gcl.yml"]
+outputs = ["custom-gcl"]
+
+[tasks.lint]
+description = "Lint the module with golangci-lint and the golint-sl plugin"
+depends = ["lint-build"]
+run = "./custom-gcl run ./..."

@@ -15,11 +15,11 @@ func TestSetNamespace(t *testing.T) {
 		t.Fatal(err)
 	}
 	path := t.TempDir() + "/prod.yaml"
-	if err := clientcmd.WriteToFile(*out, path); err != nil {
+	if err = clientcmd.WriteToFile(*out, path); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := SetNamespace(path, "database"); err != nil {
+	if err = SetNamespace(path, "database"); err != nil {
 		t.Fatalf("SetNamespace() error = %v", err)
 	}
 

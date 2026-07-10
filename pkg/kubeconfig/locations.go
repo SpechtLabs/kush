@@ -83,8 +83,8 @@ func LoadResolved(locations []string) (*api.Config, []Warning, error) {
 		return nil, nil, err
 	}
 	if len(files) == 0 {
-		cfg, err := Load()
-		return cfg, nil, err
+		cfg, loadErr := Load()
+		return cfg, nil, loadErr
 	}
 	// Parse each candidate once. Skip (with a warning) any file that isn't a
 	// valid kubeconfig, so globbing over a directory of mixed files — old
@@ -93,17 +93,17 @@ func LoadResolved(locations []string) (*api.Config, []Warning, error) {
 	parsed := make(map[string]*api.Config, len(files))
 	var warnings []Warning
 	for _, f := range files {
-		c, err := clientcmd.LoadFromFile(f)
-		if err != nil {
-			warnings = append(warnings, Warning{Message: fmt.Sprintf("skipping %s: not a valid kubeconfig (%v)", f, err)})
+		c, parseErr := clientcmd.LoadFromFile(f)
+		if parseErr != nil {
+			warnings = append(warnings, Warning{Message: fmt.Sprintf("skipping %s: not a valid kubeconfig (%v)", f, parseErr)})
 			continue
 		}
 		valid = append(valid, f)
 		parsed[f] = c
 	}
 	if len(valid) == 0 {
-		cfg, err := Load()
-		return cfg, warnings, err
+		cfg, loadErr := Load()
+		return cfg, warnings, loadErr
 	}
 
 	cfg, err := LoadFrom(&clientcmd.ClientConfigLoadingRules{Precedence: valid})
@@ -138,7 +138,7 @@ func duplicateWarnings(files []string, parsed map[string]*api.Config) []Warning 
 		}
 	}
 	sort.Strings(names)
-	var ws []Warning
+	ws := make([]Warning, 0, len(names))
 	for _, n := range names {
 		ws = append(ws, Warning{Message: fmt.Sprintf("context %q defined in %d files; using %s", n, count[n], firstFile[n])})
 	}
