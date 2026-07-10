@@ -89,6 +89,36 @@ func TestLoadResolvedNilUsesDefault(t *testing.T) {
 	}
 }
 
+func TestLoadResolvedSkipsInvalidFiles(t *testing.T) {
+	dir := t.TempDir()
+	good := filepath.Join(dir, "good")
+	writeCfg(t, good, "keeper", "c", "u")
+	// an empty file (valid: empty kubeconfig) and a junk file (invalid YAML)
+	if err := os.WriteFile(filepath.Join(dir, "empty"), nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "junk"), []byte("not: [valid yaml"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, warns, err := LoadResolved([]string{filepath.Join(dir, "*")})
+	if err != nil {
+		t.Fatalf("LoadResolved() error = %v; a junk file should be skipped, not fatal", err)
+	}
+	if _, ok := cfg.Contexts["keeper"]; !ok {
+		t.Fatal("valid context was dropped")
+	}
+	var skipped bool
+	for _, w := range warns {
+		if strings.Contains(w.Message, "junk") && strings.Contains(w.Message, "skipping") {
+			skipped = true
+		}
+	}
+	if !skipped {
+		t.Fatalf("expected a skip warning for the junk file, got %v", warns)
+	}
+}
+
 func TestLoadResolvedMergesFirstWinsWithWarning(t *testing.T) {
 	dir := t.TempDir()
 	a := filepath.Join(dir, "a.yaml")

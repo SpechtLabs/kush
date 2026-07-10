@@ -86,22 +86,42 @@ func LoadResolved(locations []string) (*api.Config, []Warning, error) {
 		cfg, err := Load()
 		return cfg, nil, err
 	}
-	cfg, err := LoadFrom(&clientcmd.ClientConfigLoadingRules{Precedence: files})
-	if err != nil {
-		return nil, nil, err
-	}
-	return cfg, duplicateWarnings(files), nil
-}
-
-// duplicateWarnings reports context names present in more than one file. The
-// winner is the first file in list order (matching clientcmd's first-wins
-// merge). Names are reported in sorted order for determinism.
-func duplicateWarnings(files []string) []Warning {
-	count := make(map[string]int)
-	firstFile := make(map[string]string)
+	// Parse each candidate once. Skip (with a warning) any file that isn't a
+	// valid kubeconfig, so globbing over a directory of mixed files — old
+	// formats, notes, empty files — doesn't break the whole load.
+	valid := make([]string, 0, len(files))
+	parsed := make(map[string]*api.Config, len(files))
+	var warnings []Warning
 	for _, f := range files {
 		c, err := clientcmd.LoadFromFile(f)
 		if err != nil {
+			warnings = append(warnings, Warning{Message: fmt.Sprintf("skipping %s: not a valid kubeconfig (%v)", f, err)})
+			continue
+		}
+		valid = append(valid, f)
+		parsed[f] = c
+	}
+	if len(valid) == 0 {
+		cfg, err := Load()
+		return cfg, warnings, err
+	}
+
+	cfg, err := LoadFrom(&clientcmd.ClientConfigLoadingRules{Precedence: valid})
+	if err != nil {
+		return nil, warnings, err
+	}
+	return cfg, append(warnings, duplicateWarnings(valid, parsed)...), nil
+}
+
+// duplicateWarnings reports context names present in more than one file, using
+// the already-parsed configs. The winner is the first file in list order
+// (matching clientcmd's first-wins merge). Names are sorted for determinism.
+func duplicateWarnings(files []string, parsed map[string]*api.Config) []Warning {
+	count := make(map[string]int)
+	firstFile := make(map[string]string)
+	for _, f := range files {
+		c := parsed[f]
+		if c == nil {
 			continue
 		}
 		for name := range c.Contexts {
