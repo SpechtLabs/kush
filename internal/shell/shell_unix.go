@@ -13,8 +13,6 @@ import (
 	"time"
 
 	humane "github.com/sierrasoftworks/humane-errors-go"
-	"golang.org/x/sys/unix"
-	"golang.org/x/term"
 )
 
 func loginShell() string {
@@ -45,15 +43,17 @@ func Run(ctx context.Context, kubeconfig string, extraEnv []string) error {
 	return nil
 }
 
-// setupSignalHandler forwards or acts on catchable signals for clean teardown.
-// Lifted from tka's shell handler minus credential revocation.
+// setupSignalHandler tears the subshell down on external termination requests
+// (SIGTERM/SIGHUP) and otherwise gets out of the way. The child shell shares our
+// foreground process group and controlling tty, so tty-generated signals
+// (SIGINT/SIGQUIT/SIGTSTP) are delivered to it directly; we catch them only to
+// suppress the parent's default action (which would kill kush and orphan the
+// child) and then do nothing.
 func setupSignalHandler(ctx context.Context, cancel context.CancelFunc, cmd *exec.Cmd) {
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs,
-		syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGHUP,
-		syscall.SIGABRT, syscall.SIGFPE, syscall.SIGILL, syscall.SIGSEGV, syscall.SIGBUS,
-		syscall.SIGPIPE, syscall.SIGTSTP, syscall.SIGTTIN, syscall.SIGTTOU,
-		syscall.SIGWINCH, syscall.SIGURG,
+		syscall.SIGTERM, syscall.SIGHUP, // external teardown requests
+		syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTSTP, // tty signals: swallow, let child handle
 	)
 
 	go func() {
@@ -64,33 +64,15 @@ func setupSignalHandler(ctx context.Context, cancel context.CancelFunc, cmd *exe
 				return
 			case sig := <-sigs:
 				switch sig {
-				case syscall.SIGWINCH:
-					resizeChild(cmd)
-				case syscall.SIGTSTP, syscall.SIGTTIN, syscall.SIGTTOU, syscall.SIGURG:
-					if isRunning(cmd) {
-						_ = cmd.Process.Signal(sig)
-					}
-				default:
-					// Termination / fatal / pipe signals: tear the child down.
+				case syscall.SIGTERM, syscall.SIGHUP:
 					terminateChild(cmd, cancel)
 					return
+				default:
+					// SIGINT/SIGQUIT/SIGTSTP: the child owns these; do nothing.
 				}
 			}
 		}
 	}()
-}
-
-func resizeChild(cmd *exec.Cmd) {
-	if !isRunning(cmd) {
-		return
-	}
-	if fd := int(os.Stdin.Fd()); term.IsTerminal(fd) {
-		if w, h, err := term.GetSize(fd); err == nil {
-			_ = unix.IoctlSetWinsize(cmd.Process.Pid, syscall.TIOCSWINSZ, &unix.Winsize{
-				Row: uint16(h), Col: uint16(w),
-			})
-		}
-	}
 }
 
 func isRunning(cmd *exec.Cmd) bool {

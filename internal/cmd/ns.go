@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 
 	humane "github.com/sierrasoftworks/humane-errors-go"
@@ -23,11 +22,12 @@ var cmdNs = &cobra.Command{
 		if len(args) == 1 {
 			name = args[0]
 		}
-		return runNs(cmd.Context(), name)
+		return runNs(cmd, name)
 	},
 }
 
-func runNs(ctx context.Context, namespace string) error {
+func runNs(cmd *cobra.Command, namespace string) error {
+	ctx := cmd.Context()
 	if st, inShell := state.Current(); inShell {
 		// Inside a kush shell: edit the temp kubeconfig in place. Exempt from the
 		// nesting guard — no subshell is spawned.
@@ -41,7 +41,7 @@ func runNs(ctx context.Context, namespace string) error {
 		if err := kubeconfig.SetNamespace(st.Kubeconfig, namespace); err != nil {
 			return err
 		}
-		fmt.Printf("namespace re-pinned to %q (kubectl and prompt update from the kubeconfig file)\n", namespace)
+		fmt.Fprintf(cmd.OutOrStdout(), "namespace re-pinned to %q (kubectl and prompt update from the kubeconfig file)\n", namespace)
 		return nil
 	}
 

@@ -28,6 +28,27 @@ func TestTempDirUsesXDGRuntime(t *testing.T) {
 	}
 }
 
+func TestTempDirEnforcesMode(t *testing.T) {
+	base := t.TempDir()
+	t.Setenv("XDG_RUNTIME_DIR", base)
+	dir := filepath.Join(base, "kush")
+	if err := os.MkdirAll(dir, 0o777); err != nil {
+		t.Fatalf("pre-create dir: %v", err)
+	}
+
+	if _, err := TempDir(); err != nil {
+		t.Fatalf("TempDir() error = %v", err)
+	}
+
+	info, err := os.Stat(dir)
+	if err != nil {
+		t.Fatalf("stat temp dir: %v", err)
+	}
+	if info.Mode().Perm() != 0o700 {
+		t.Fatalf("temp dir mode = %o, want 700", info.Mode().Perm())
+	}
+}
+
 func TestWriteTemp(t *testing.T) {
 	base := t.TempDir()
 	t.Setenv("XDG_RUNTIME_DIR", base)

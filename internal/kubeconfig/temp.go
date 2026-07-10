@@ -22,6 +22,11 @@ func TempDir() (string, error) {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", humane.Wrap(err, "failed to create kush temp dir "+dir, "check filesystem permissions on the parent directory")
 	}
+	// MkdirAll leaves the mode untouched if dir already existed (e.g. a stale
+	// world-listable /tmp/kush from an earlier run); enforce 0700 explicitly.
+	if err := os.Chmod(dir, 0o700); err != nil {
+		return "", humane.Wrap(err, "failed to enforce permissions on kush temp dir "+dir, "check filesystem permissions on the parent directory")
+	}
 	return dir, nil
 }
 

@@ -51,6 +51,9 @@ func runExec(ctx context.Context, ctxName, namespace string, argv []string) erro
 	if err != nil {
 		return err
 	}
+	// On SIGINT (Ctrl-C) the parent process dies before this defer runs, so
+	// cleanup falls to SweepStale on the next invocation (the sweep is the
+	// safety net for exactly this case, not just crashes).
 	defer func() { _ = os.Remove(path) }()
 
 	st := state.State{Context: ctxName, Namespace: out.Contexts[ctxName].Namespace, Kubeconfig: path}
