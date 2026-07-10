@@ -5,7 +5,7 @@ go = "1.26.5"
 "go:github.com/go-delve/delve/cmd/dlv" = "1.25.2"
 
 # Pre-commit for Git hooks
-pre-commit = "4.3.0"
+pre-commit = "4.6.0"
 
 # linter
 golangci-lint = "2.12.2"
