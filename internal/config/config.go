@@ -24,7 +24,16 @@ const (
 const (
 	KeyLookupLocations = "context_lookup_locations"
 	KeyPicker          = "picker"
+	KeyShell           = "shell"
 )
+
+// Shell returns the shell kush should fork for a subshell, or "" to fall back
+// to $SHELL (then /bin/bash). Set it when your interactive shell differs from
+// your login $SHELL (e.g. you run fish but $SHELL is zsh) so subshell history
+// and atuin land where you expect.
+func Shell() string {
+	return viper.GetString(KeyShell)
+}
 
 // ParsePicker maps a config string to a PickerMode. "" and "auto" → PickerAuto;
 // an unrecognized value is an error.

@@ -61,6 +61,7 @@ func initConfig() {
 	// and whitespace-split it (not PathListSeparator), which is spec-inconsistent —
 	// lookup locations are configured via the file only.
 	_ = viper.BindEnv(config.KeyPicker)
+	_ = viper.BindEnv(config.KeyShell)
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, notFound := err.(viper.ConfigFileNotFoundError); !notFound {

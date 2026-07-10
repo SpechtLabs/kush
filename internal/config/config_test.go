@@ -48,6 +48,17 @@ func TestPickerFromViper(t *testing.T) {
 	}
 }
 
+func TestShell(t *testing.T) {
+	viper.Reset()
+	if got := Shell(); got != "" {
+		t.Fatalf("Shell() = %q, want empty when unset", got)
+	}
+	viper.Set(KeyShell, "/opt/homebrew/bin/fish")
+	if got := Shell(); got != "/opt/homebrew/bin/fish" {
+		t.Fatalf("Shell() = %q, want /opt/homebrew/bin/fish", got)
+	}
+}
+
 func TestLookupLocations(t *testing.T) {
 	viper.Reset()
 	if got := LookupLocations(); got != nil {

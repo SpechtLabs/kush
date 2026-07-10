@@ -7,6 +7,7 @@ import (
 	"os"
 
 	humane "github.com/sierrasoftworks/humane-errors-go"
+	"github.com/spechtlabs/kush/internal/config"
 	"github.com/spechtlabs/kush/internal/kubeconfig"
 	"github.com/spechtlabs/kush/internal/picker"
 	"github.com/spechtlabs/kush/internal/shell"
@@ -102,5 +103,5 @@ func runCtx(ctx context.Context, warnOut io.Writer, ctxName, namespace string) e
 		Namespace:  out.Contexts[ctxName].Namespace,
 		Kubeconfig: path,
 	}
-	return shell.Run(ctx, path, st.Env())
+	return shell.Run(ctx, config.Shell(), path, st.Env())
 }

@@ -23,13 +23,17 @@ func loginShell() string {
 	return "/bin/bash"
 }
 
-// Run forks the user's login shell with KUBECONFIG set to kubeconfig and
-// extraEnv appended, inheriting stdio, and blocks until it exits.
-func Run(ctx context.Context, kubeconfig string, extraEnv []string) error {
+// Run forks a subshell with KUBECONFIG set to kubeconfig and extraEnv appended,
+// inheriting stdio, and blocks until it exits. shellPath selects the shell; an
+// empty shellPath falls back to $SHELL (then /bin/bash).
+func Run(ctx context.Context, shellPath, kubeconfig string, extraEnv []string) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, loginShell())
+	if shellPath == "" {
+		shellPath = loginShell()
+	}
+	cmd := exec.CommandContext(ctx, shellPath)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
