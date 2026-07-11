@@ -15,7 +15,7 @@ When you exit, it's gone. The temp kubeconfig kush wrote for that shell is delet
 
 `use-context` mutates a single shared file. Switch context in one terminal and every other terminal, script, and background tool reading `~/.kube/config` switches with it. It's easy to run a command against the wrong cluster because some other pane changed context five minutes ago. kush sidesteps this by never touching that file; each shell gets its own private, minimal kubeconfig scoped to exactly one context.
 
-kush is also auth-agnostic: it copies the user block from your existing kubeconfig verbatim, so exec plugins, OIDC, and cloud auth all keep working, and it ships as a single Go binary with no extra runtime dependencies. That's also why it works with OpenShift out of the box — `oc` honors the pinned `KUBECONFIG` like kubectl does (see the [OpenShift guide](../guides/openshift.md)).
+kush is also auth-agnostic: it copies the user block from your existing kubeconfig verbatim, so exec plugins, OIDC, and cloud auth all keep working, and it ships as a single Go binary with no extra runtime dependencies. That's also why it works with OpenShift with no extra setup: `oc` honors the pinned `KUBECONFIG` like kubectl (see the [OpenShift guide](../guides/openshift.md)).
 
 ## When to use it
 
