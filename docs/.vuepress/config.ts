@@ -131,6 +131,7 @@ export default defineUserConfig({
                   icon: "mdi:folder-swap",
                 },
                 { text: "Run one command", link: "exec", icon: "mdi:play-box" },
+                { text: "OpenShift", link: "openshift", icon: "mdi:redhat" },
               ],
             },
             {

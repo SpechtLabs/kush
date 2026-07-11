@@ -36,6 +36,7 @@ export const navbar = defineNavbarConfig([
         icon: "mdi:folder-swap",
       },
       { text: "Run one command", link: "/guides/exec", icon: "mdi:play-box" },
+      { text: "OpenShift", link: "/guides/openshift", icon: "mdi:redhat" },
       {
         text: "Config & discovery",
         link: "/guides/configuration",
