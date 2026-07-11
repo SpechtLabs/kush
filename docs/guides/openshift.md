@@ -57,6 +57,14 @@ oc project billing     # oc's equivalent; both edit the same temp kubeconfig
 
 Both edit the current context in the temp kubeconfig, so the change stays isolated to this shell and is thrown away on exit, exactly like a namespace switch. Your `(kush:…)` prompt marker reads the namespace live from the kubeconfig file, so it updates whichever command you use. See [Switch namespaces](./namespaces.md) for the full picture.
 
+## Multi-tenant clusters
+
+OpenShift does multi-tenancy on the cluster: projects are the boundary, and RBAC decides what your identity can reach. kush knows nothing about any of that. It never calls the API, so it neither enforces tenant scoping nor understands it. What it does give you is the layer underneath: a shell whose view can't drift onto the wrong tenant.
+
+In practice a tenant is a set of projects on a cluster. You `oc login` once, then move between that tenant's projects with `kush ns <project>` or `oc project <project>`, the same way you'd switch any namespace. The payoff shows up when you work several tenants at once: open one kush shell per tenant, and because no shared current-context exists to fall out of sync, a command meant for one tenant physically can't land on another's cluster or project from the other shell. When tenants need different identities, each is its own `user` block, and kush keeps them apart per shell.
+
+One thing to know: since kush reads only your local kubeconfig, the context picker lists what you've already logged into, and `kush ns` takes free text rather than enumerating projects. To see which projects a tenant identity can actually reach, ask the cluster with `oc projects` from inside the shell; kush won't list them for you. That's the cost of staying a single static binary that makes no cluster round-trips.
+
 ## The one gotcha: token expiry in long sessions
 
 If you authenticate with a username and password (`oc login -u … -p …`), OpenShift issues a static OAuth bearer token, usually valid for about 24 hours, and bakes it into your kubeconfig's `user` block. kush snapshots that token into the temp kubeconfig **when you enter the shell**. Two things follow from that:
