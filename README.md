@@ -17,7 +17,7 @@ Run `kush prod` and you drop into a normal shell pinned to the `prod` context th
 
 kush sidesteps this by never touching that file. Each shell gets its own minimal kubeconfig scoped to exactly one context, so there's no global state to corrupt and no wrong-cluster surprise waiting for you.
 
-It's also auth-agnostic: kush copies the user block from your existing kubeconfig verbatim, so exec plugins, OIDC, and cloud auth keep working unchanged. Ships as a single Go binary with no runtime dependencies.
+It's also auth-agnostic: kush copies the user block from your existing kubeconfig verbatim, so exec plugins, OIDC, and cloud auth keep working unchanged. That's why it works with OpenShift with no extra setup: `oc login`, then `kush <context>`, and `oc` honors the pinned `KUBECONFIG` just like kubectl (see the [OpenShift guide](https://kush.specht-labs.de/guides/openshift)). Ships as a single Go binary with no runtime dependencies.
 
 ## Install
 
