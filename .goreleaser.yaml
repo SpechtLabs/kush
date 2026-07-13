@@ -34,6 +34,35 @@ archives:
 checksum:
   name_template: "checksums.txt"
 
+# Publish a Krew manifest so kush can be installed as a kubectl plugin:
+#   kubectl krew index add kush https://github.com/SpechtLabs/kush.git
+#   kubectl krew install kush/kush
+#   kubectl kush <context>
+#
+# Krew creates a kubectl-kush shim that points at the packaged kush binary, so
+# the release artifact keeps the regular `kush` executable name. The generated
+# manifest is committed to this repository at plugins/kush.yaml, making this repo
+# a self-contained custom Krew index.
+krews:
+  - name: kush
+    ids:
+      - kush
+    homepage: "https://kush.specht-labs.de"
+    description: |
+      kush drops you into a throwaway subshell pinned to exactly one Kubernetes
+      context. It never mutates your source kubeconfig, and it cleans up the
+      temporary kubeconfig when the shell exits.
+    short_description: "Ephemeral, isolated kube-context subshells"
+    caveats: |
+      The kubectl plugin entrypoint is `kubectl kush`.
+    repository:
+      owner: SpechtLabs
+      name: kush
+      branch: main
+    commit_author:
+      name: goreleaser-bot
+      email: bot@specht-labs.de
+
 # Publish a Homebrew cask to SpechtLabs/homebrew-tap on each release.
 # Needs a token with write access to that repo, passed as HOMEBREW_TAP_GITHUB_TOKEN
 # (the default GITHUB_TOKEN cannot push to another repository).
