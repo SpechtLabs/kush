@@ -42,9 +42,11 @@ Grab a prebuilt binary for your platform from the [GitHub releases page](https:/
 Run `kush` directly or build it using the provided Nix Flake:
 
 ::: terminal Run with Nix
+
 ```shell
 nix run github:spechtlabs/kush -- version
 ```
+
 :::
 
 To add `kush` to your NixOS configuration, add the input:
