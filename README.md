@@ -29,6 +29,9 @@ brew install spechtlabs/tap/kush
 
 # or build from source
 go install github.com/spechtlabs/kush/cmd/kush@latest
+
+# or run directly with Nix (Flakes)
+nix run github:spechtlabs/kush -- version
 ```
 
 Or grab a prebuilt binary from the [releases page](https://github.com/spechtlabs/kush/releases).

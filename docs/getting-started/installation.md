@@ -37,6 +37,30 @@ go install github.com/spechtlabs/kush/cmd/kush@latest
 
 Grab a prebuilt binary for your platform from the [GitHub releases page](https://github.com/spechtlabs/kush/releases), then move it onto your `PATH`.
 
+@tab Nix (Flakes)
+
+Run `kush` directly or build it using the provided Nix Flake:
+
+::: terminal Run with Nix
+```shell
+nix run github:spechtlabs/kush -- version
+```
+:::
+
+To add `kush` to your NixOS configuration, add the input:
+
+```nix
+inputs.kush.url = "github:spechtlabs/kush";
+```
+
+And install the package:
+
+```nix
+environment.systemPackages = [
+  inputs.kush.packages.${pkgs.system}.default
+];
+```
+
 ::::
 
 ## Optional: fzf
