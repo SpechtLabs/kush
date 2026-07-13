@@ -66,6 +66,42 @@ export default defineUserConfig({
         return `\n</Terminal>\n`;
       },
     });
+
+    md.use(container, "cast", {
+      validate: (params: string) => {
+        const info = params.trim();
+        return /^cast(?:\s+.*)?$/.test(info);
+      },
+      render: (tokens: any[], idx: number) => {
+        const token = tokens[idx];
+        if (token.nesting === 1) {
+          const info = token.info.trim();
+          const rest = info.replace(/^cast\s*/, "");
+          const attrs: Record<string, string> = {};
+          const attrRegex = /(\w+)=((?:\"[^\"]*\")|(?:'[^']*')|(?:[^\s]+))/g;
+          let m: RegExpExecArray | null;
+          while ((m = attrRegex.exec(rest)) !== null) {
+            const key = m[1];
+            let val = m[2];
+            if (
+              (val.startsWith('"') && val.endsWith('"')) ||
+              (val.startsWith("'") && val.endsWith("'"))
+            ) {
+              val = val.slice(1, -1);
+            }
+            attrs[key] = val;
+          }
+
+          const src = attrs.src ? md.utils.escapeHtml(attrs.src) : "";
+          const title = attrs.title ? md.utils.escapeHtml(attrs.title) : "";
+          const rows = attrs.rows ? Number.parseInt(attrs.rows, 10) : 16;
+          const rowsAttr = Number.isFinite(rows) ? ` :rows="${rows}"` : "";
+          const titleAttr = title ? ` title="${title}"` : "";
+          return `\n<AsciinemaCast src="${src}"${titleAttr}${rowsAttr} />\n`;
+        }
+        return "\n";
+      },
+    });
   },
 
   plugins: [

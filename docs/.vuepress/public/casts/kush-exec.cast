@@ -1,0 +1,8 @@
+{"version":3,"term":{"cols":86,"rows":12},"timestamp":1783955503,"idle_time_limit":1.2,"command":"/private/tmp/kush-demo-exec.sh","env":{"SHELL":"/opt/homebrew/bin/fish"}}
+[0.036, "o", "demo$ kush exec prod -n billing -- kubectl rollout status deploy/checkout\r\n"]
+[0.005, "o", "\u001b]11;?\u001b\\\u001b[6n"]
+[5.048, "o", "deployment \"checkout\" successfully rolled out\r\n"]
+[0.002, "o", "\r\ndemo$ kush exec dev -- kubectl config current-context\r\n"]
+[0.006, "o", "\u001b]11;?\u001b\\\u001b[6n"]
+[5.031, "o", "dev\r\n"]
+[0.001, "x", "0"]
