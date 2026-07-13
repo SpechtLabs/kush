@@ -67,14 +67,21 @@ nix run github:spechtlabs/kush -- version
 To add `kush` to your NixOS configuration, add the input:
 
 ```nix
-inputs.kush.url = "github:spechtlabs/kush";
+inputs.kush = {
+  url = "github:spechtlabs/kush";
+  inputs.nixpkgs.follows = "nixpkgs";
+};
 ```
+
+`nixpkgs.follows` is optional but recommended — without it, kush pulls in
+its own separate nixpkgs evaluation instead of reusing the one your
+system already has, which costs extra build time and store space.
 
 And install the package:
 
 ```nix
 environment.systemPackages = [
-  inputs.kush.packages.${pkgs.system}.default
+  inputs.kush.packages.${pkgs.stdenv.hostPlatform.system}.default
 ];
 ```
 
