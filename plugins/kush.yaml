@@ -1,0 +1,43 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  name: kush
+spec:
+  version: v1.1.0
+  homepage: https://kush.specht-labs.de
+  shortDescription: Ephemeral, isolated kube-context subshells
+  description: |
+    kush drops you into a throwaway subshell pinned to exactly one Kubernetes
+    context. It never mutates your source kubeconfig, and it cleans up the
+    temporary kubeconfig when the shell exits.
+  caveats: |
+    The kubectl plugin entrypoint is `kubectl kush`.
+  platforms:
+    - selector:
+        matchLabels:
+          os: darwin
+          arch: amd64
+      uri: https://github.com/SpechtLabs/kush/releases/download/v1.1.0/kush_1.1.0_darwin_amd64.tar.gz
+      sha256: 23eaec8c9c1232a3c5bc0a326867abf1f15ddbf49bef503f1f0b2a21a631c21e
+      bin: kush
+    - selector:
+        matchLabels:
+          os: darwin
+          arch: arm64
+      uri: https://github.com/SpechtLabs/kush/releases/download/v1.1.0/kush_1.1.0_darwin_arm64.tar.gz
+      sha256: d218b5a68ae8b02488a163041574a93bc1b15f8d54e6dc20e6b61c87935eef60
+      bin: kush
+    - selector:
+        matchLabels:
+          os: linux
+          arch: amd64
+      uri: https://github.com/SpechtLabs/kush/releases/download/v1.1.0/kush_1.1.0_linux_amd64.tar.gz
+      sha256: 293037747db0dbaa53059e729a11e0334622615d3d99f853d3b029a6a6e2268b
+      bin: kush
+    - selector:
+        matchLabels:
+          os: linux
+          arch: arm64
+      uri: https://github.com/SpechtLabs/kush/releases/download/v1.1.0/kush_1.1.0_linux_arm64.tar.gz
+      sha256: 27857841f5177d01fb662ccfdc5c5269fe27e9d9e0fbc2a6fad6ccc27ef0c1d2
+      bin: kush
