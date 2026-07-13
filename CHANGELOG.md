@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/SpechtLabs/kush/compare/v1.1.0...v1.1.1) (2026-07-13)
+
+
+### Bug Fixes
+
+* **krew:** publish v1.1.0 manifest ([#41](https://github.com/SpechtLabs/kush/issues/41)) ([befe232](https://github.com/SpechtLabs/kush/commit/befe232fe4aad26e1ccd3ccdcb6cbf551c0ae5c2))
+* **release:** make tag publishing retryable ([#38](https://github.com/SpechtLabs/kush/issues/38)) ([4d5644e](https://github.com/SpechtLabs/kush/commit/4d5644e87b6d679a5458e6320f404e74e91fb3a5))
+
 ## [1.1.0](https://github.com/SpechtLabs/kush/compare/v1.0.1...v1.1.0) (2026-07-13)
 
 
