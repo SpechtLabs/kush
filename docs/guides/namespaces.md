@@ -9,18 +9,7 @@ Namespace is the one thing kush lets you change without leaving your shell. Cont
 
 Inside a kush shell, `kush ns <name>` rewrites the namespace in that shell's private kubeconfig where it sits. No new shell, nothing lost from your session, and it applies on the very next command:
 
-::: terminal Re-pin the namespace
-
-```shell
-$ kush prod
-$ kush ns billing
-$ kubectl get pods
-# querying prod/billing now, same shell
-
-$ kush current
-prod/billing
-```
-
+::: cast src=/casts/kush-namespace.cast title="Re-pin a running kush shell to billing" rows=10
 :::
 
 Because it edits the existing kubeconfig instead of spawning a shell, `kush ns` is exempt from the [nesting guard](./enter-context.md). It's the one kush command you can run from inside a kush shell.

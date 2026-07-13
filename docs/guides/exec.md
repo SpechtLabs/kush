@@ -13,17 +13,7 @@ kush exec <context> [-n namespace] -- <command> [args...]
 
 Everything after `--` is the command to run. kush pins `KUBECONFIG` to a private one-context temp file for the duration of that command, forwards stdin/stdout/stderr, propagates the child's exit code, and deletes the temp file when the command finishes:
 
-::: terminal Run a single command
-
-```shell
-$ kush exec prod -- kubectl get pods
-NAME                     READY   STATUS    RESTARTS   AGE
-web-7d9f8b6c5-x2z9k      1/1     Running   0          3h
-
-$ echo $?
-0
-```
-
+::: cast src=/casts/kush-exec.cast title="Run one command without entering a shell" rows=7
 :::
 
 ## Targeting a namespace
