@@ -24,6 +24,10 @@ It's also auth-agnostic: kush copies the user block from your existing kubeconfi
 kush is unix-only in v1 (no Windows, no `cmd.exe`/PowerShell).
 
 ```shell
+# Krew
+kubectl krew index add kush https://github.com/SpechtLabs/kush.git
+kubectl krew install kush/kush
+
 # Homebrew (macOS/Linux)
 brew install spechtlabs/tap/kush
 
@@ -36,7 +40,7 @@ Or grab a prebuilt binary from the [releases page](https://github.com/spechtlabs
 Verify:
 
 ```shell
-kush version
+kubectl kush version
 ```
 
 If you have [`fzf`](https://github.com/junegunn/fzf) on your `PATH`, kush uses it for the context picker automatically; otherwise it falls back to a built-in TUI. Nothing to configure either way.
@@ -46,13 +50,13 @@ If you have [`fzf`](https://github.com/junegunn/fzf) on your `PATH`, kush uses i
 The whole workflow is enter, work, exit:
 
 ```shell
-kush prod                       # subshell pinned to prod, via a private kubeconfig
+kubectl kush prod               # subshell pinned to prod, via a private kubeconfig
 kubectl get pods                # kubectl, helm, k9s, flux: all see only prod
-kush ns kube-system             # re-pin the namespace in place, same shell
+kubectl kush ns kube-system     # re-pin the namespace in place, same shell
 exit                            # temp kubeconfig deleted, back to your normal shell
 ```
 
-Run `kush` with no argument to pick a context interactively. To switch context, you exit and enter another; kush deliberately won't change context in place, since that's the silent state change that gets people into trouble.
+Run `kubectl kush` or `kush` with no argument to pick a context interactively. Krew installs the command as `kubectl kush`, and Homebrew, `go install`, and release binaries install it as `kush`. To switch context, you exit and enter another; kush deliberately won't change context in place, since that's the silent state change that gets people into trouble.
 
 For scripts, CI, and agents that need a single command without an interactive shell, use `kush exec`. It pins `KUBECONFIG` for just that one process, forwards stdin/stdout/stderr, propagates the exit code, and cleans up when the command finishes:
 
@@ -65,15 +69,15 @@ kush exec prod -n kube-system -- kubectl get pods
 
 | Command | What it does |
 | --- | --- |
-| `kush [ctx]` / `kush ctx [name]` | Enter an isolated subshell for a context. No argument opens the picker. `-l` lists contexts and exits. |
-| `kush ns [name]` | Re-pin the namespace of the current kush shell in place (or spawn a shell for your current context, if run outside one). |
-| `kush exec <ctx> -- <cmd>` | Run one command against an isolated context, non-interactively. `-n` sets the namespace. |
-| `kush current` | Print the active `context/namespace`. Empty and exit `0` outside a kush shell. |
-| `kush lint` | Check every discovered kubeconfig for missing clusters/users, empty current-context, unreachable files. Exits non-zero on errors. |
-| `kush split [-o dir]` | Write one self-contained kubeconfig per context to disk. Never mutates the source. |
-| `kush init <bash\|zsh\|fish>` | Emit optional prompt glue that shows a `(kush:<ctx>)` marker. |
-| `kush completion <bash\|zsh\|fish>` | Standard shell completion for context names. |
-| `kush version` | Print the version. |
+| `kubectl kush [ctx]` / `kush [ctx]` / `kush ctx [name]` | Enter an isolated subshell for a context. No argument opens the picker. `-l` lists contexts and exits. |
+| `kubectl kush ns [name]` / `kush ns [name]` | Re-pin the namespace of the current kush shell in place (or spawn a shell for your current context, if run outside one). |
+| `kubectl kush exec <ctx> -- <cmd>` / `kush exec <ctx> -- <cmd>` | Run one command against an isolated context, non-interactively. `-n` sets the namespace. |
+| `kubectl kush current` / `kush current` | Print the active `context/namespace`. Empty and exit `0` outside a kush shell. |
+| `kubectl kush lint` / `kush lint` | Check every discovered kubeconfig for missing clusters/users, empty current-context, unreachable files. Exits non-zero on errors. |
+| `kubectl kush split [-o dir]` / `kush split [-o dir]` | Write one self-contained kubeconfig per context to disk. Never mutates the source. |
+| `kubectl kush init <bash\|zsh\|fish>` / `kush init <bash\|zsh\|fish>` | Emit optional prompt glue that shows a `(kush:<ctx>)` marker. |
+| `kubectl kush completion <bash\|zsh\|fish>` / `kush completion <bash\|zsh\|fish>` | Standard shell completion for context names. |
+| `kubectl kush version` / `kush version` | Print the version. |
 
 Full flags and examples live in the [CLI reference](./docs/reference/cli.md).
 

@@ -3,9 +3,24 @@ title: Installation
 createTime: 2026/07/10 10:00:00
 ---
 
-kush ships as a single Go binary. Install it with Homebrew, `go install`, or a prebuilt release binary. kush is unix-only in v1: no Windows binaries, no `cmd.exe`/PowerShell support.
+kush ships as a single Go binary. Install it with Krew, Homebrew, `go install`, or a prebuilt release binary. kush is unix-only in v1: no Windows binaries, no `cmd.exe`/PowerShell support.
 
 :::: tabs
+
+@tab Krew
+
+Install kush as a kubectl plugin:
+
+::: terminal Install with Krew
+
+```shell
+kubectl krew index add kush https://github.com/SpechtLabs/kush.git
+kubectl krew install kush/kush
+```
+
+:::
+
+Krew exposes the plugin as `kubectl kush`, so you can enter a context with `kubectl kush <context>`.
 
 @tab Homebrew
 
@@ -48,10 +63,10 @@ kush ships a built-in picker (charm/huh TUI) that works out of the box with no e
 ::: terminal Verify the install
 
 ```shell
-$ kush version
+$ kubectl kush version
 # prints the installed version and exits 0
 ```
 
 :::
 
-If that prints a version instead of "command not found," you're set up. Head to the [quick start](./quick.md) to enter your first context.
+If that prints a version instead of "unknown command" or "command not found," you're set up. If you installed with Homebrew, `go install`, or a release binary, `kush version` works too. Head to the [quick start](./quick.md) to enter your first context.
