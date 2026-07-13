@@ -13,7 +13,7 @@ The mechanism is the `KUSH_ACTIVE` variable kush sets in every shell it forks. A
 
 ## fish
 
-Drop this in `~/.config/fish/conf.d/`:
+Drop this in `~/.config/fish/conf.d/kush.fish`:
 
 ```fish
 if type -q kush
