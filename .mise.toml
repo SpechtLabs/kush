@@ -45,3 +45,23 @@ outputs = ["custom-gcl"]
 description = "Lint the module with golangci-lint and the golint-sl plugin"
 depends = ["lint-build"]
 run = "./custom-gcl run ./..."
+
+[tasks."nix:update-hash"]
+description = "Regenerate vendorHash in package.nix after a go.sum change"
+run = '''
+  output=$(nix build --no-link 2>&1)
+  if [ $? -eq 0 ]; then
+    echo "Build succeeded — vendorHash is already correct."
+    exit 0
+  fi
+
+  got=$(printf '%s' "$output" | grep -oE 'got:\s*sha256-[A-Za-z0-9+/=]+' | awk '{print $2}')
+  if [ -z "$got" ]; then
+    echo "$output" >&2
+    echo "Build failed for a reason other than a vendorHash mismatch." >&2
+    exit 1
+  fi
+
+  sed -i "s|vendorHash = \".*\";|vendorHash = \"$got\";|" package.nix
+  echo "vendorHash updated to $got"
+'''
