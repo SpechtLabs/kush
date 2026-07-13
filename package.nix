@@ -1,28 +1,31 @@
 { lib
 , buildGoModule
+, go
+, version ? "dev"
+, commit ? "none"
 }:
 
-buildGoModule rec {
+buildGoModule {
   pname = "kush";
-  version = "1.0.0";
+  inherit version;
 
   src = ./.;
 
-  # We use a fake hash first; Nix will fail the build and print the correct hash.
   vendorHash = "sha256-j9888cQvkpiH/uBRjMGOa3s9qJ6Sa0MkX7NNucHiMtU=";
 
   subPackages = [ "cmd/kush" ];
 
-  # Lower the required Go version in go.mod to match nixpkgs' Go version if needed.
+  # Dynamically adjust the required Go version in go.mod to match the Nix compiler version.
+  # This prevents compiler version mismatch failures when upstreaming or upgrading.
   postPatch = ''
-    substituteInPlace go.mod --replace-warn "go 1.26.5" "go 1.26.4"
+    sed -i 's/^go [0-9.]*/go ${go.version}/' go.mod
   '';
 
   ldflags = [
     "-s"
     "-w"
     "-X main.Version=${version}"
-    "-X main.Commit=none"
+    "-X main.Commit=${commit}"
     "-X main.Date=unknown"
   ];
 

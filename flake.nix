@@ -14,7 +14,10 @@
     in
     {
       packages = forEachSupportedSystem ({ pkgs }: {
-        default = pkgs.callPackage ./package.nix { };
+        default = pkgs.callPackage ./package.nix {
+          version = self.shortRev or self.dirtyShortRev or "dev";
+          commit = self.rev or "none";
+        };
       });
 
       devShells = forEachSupportedSystem ({ pkgs }: {
