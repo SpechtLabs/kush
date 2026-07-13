@@ -1,6 +1,7 @@
 package config
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -68,5 +69,50 @@ func TestLookupLocations(t *testing.T) {
 	got := LookupLocations()
 	if len(got) != 2 || got[0] != "$KUBECONFIG" {
 		t.Fatalf("LookupLocations() = %v", got)
+	}
+}
+
+func TestPreExecHook(t *testing.T) {
+	viper.Reset()
+	if got := PreExecHook("prod"); got != "" {
+		t.Fatalf("PreExecHook() = %q, want empty when unset", got)
+	}
+
+	viper.Set(KeyPreExecHook, " tsh join $KUSH_CONTEXT ")
+	if got := PreExecHook("prod"); got != "tsh join $KUSH_CONTEXT" {
+		t.Fatalf("PreExecHook() = %q, want global hook", got)
+	}
+
+	viper.Set(KeyContexts, map[string]any{
+		"prod": map[string]any{
+			KeyContextPreExecHook: "tsh join prod",
+		},
+	})
+	if got := PreExecHook("prod"); got != "tsh join prod" {
+		t.Fatalf("PreExecHook() = %q, want per-context hook", got)
+	}
+	if got := PreExecHook("dev"); got != "tsh join $KUSH_CONTEXT" {
+		t.Fatalf("PreExecHook() = %q, want global fallback", got)
+	}
+}
+
+func TestPreExecHookFromYAML(t *testing.T) {
+	viper.Reset()
+	viper.SetConfigType("yaml")
+	err := viper.ReadConfig(strings.NewReader(`
+pre_exec_hook: "tsh join $KUSH_CONTEXT"
+contexts:
+  cluster-123:
+    pre_exec_hook: "tsh join cluster-123"
+`))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if got := PreExecHook("cluster-123"); got != "tsh join cluster-123" {
+		t.Fatalf("PreExecHook() = %q, want per-context hook from YAML", got)
+	}
+	if got := PreExecHook("cluster-456"); got != "tsh join $KUSH_CONTEXT" {
+		t.Fatalf("PreExecHook() = %q, want global fallback from YAML", got)
 	}
 }

@@ -70,6 +70,27 @@ shell: /opt/homebrew/bin/fish
 
 The case that catches people: you run fish all day, but `$SHELL` still says `/bin/zsh` because you changed shells without updating it. Left alone, kush forks zsh, and your history and tools like atuin write somewhere you're not looking. Pinning `shell` keeps the subshell the one you actually live in.
 
+## Running auth before entering a context
+
+Some clusters need a login step before kubectl can use the context. `pre_exec_hook` runs after kush has selected the context, but before it starts the isolated shell or `kush exec` command:
+
+```yaml
+# ~/.config/kush/config.yaml
+pre_exec_hook: "tsh join $KUSH_CONTEXT"
+```
+
+The hook gets `KUSH_CONTEXT` in its environment, so selecting `kush ctx cluster-123` runs the example as `tsh join cluster-123`. If the hook exits non-zero, kush stops instead of opening a shell with stale credentials.
+
+Set a per-context hook when only some contexts need special handling, or when the command is not just the context name:
+
+```yaml
+contexts:
+  cluster-123:
+    pre_exec_hook: "tsh join cluster-123"
+```
+
+Per-context hooks override the global hook. After a successful hook, kush reloads kubeconfig before it extracts the isolated context.
+
 ## A complete config.yaml
 
 ```yaml
@@ -81,4 +102,9 @@ context_lookup_locations:
 
 picker: fzf
 shell: /opt/homebrew/bin/fish
+
+pre_exec_hook: "tsh join $KUSH_CONTEXT"
+contexts:
+  cluster-123:
+    pre_exec_hook: "tsh join cluster-123"
 ```

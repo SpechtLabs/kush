@@ -93,6 +93,11 @@ context_lookup_locations:
 
 picker: auto                 # auto | builtin | fzf   (env: KUSH_PICKER)
 shell: ""                    # empty = $SHELL, then /bin/bash   (env: KUSH_SHELL)
+pre_exec_hook: "tsh join $KUSH_CONTEXT"
+
+contexts:
+  cluster-123:
+    pre_exec_hook: "tsh join cluster-123"
 ```
 
 Inside every subshell, kush sets `KUSH_ACTIVE`, `KUSH_CONTEXT`, `KUSH_NAMESPACE`, and `KUSH_KUBECONFIG`, plus `KUBECONFIG` itself pointed at the temp file. That last one is what makes every kube-aware tool honor the isolation without any kush-specific flag. See the [configuration reference](./docs/reference/configuration.md) for the details.
