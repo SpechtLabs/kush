@@ -1,7 +1,6 @@
-// Package config exposes kush's user configuration (viper-backed): the picker
-// mode and the context lookup locations. cmd/kush initializes viper from
-// ~/.config/kush/config.yaml and the KUSH_ env prefix; this package is the
-// typed, defaulted read side.
+// Package config exposes kush's user configuration (viper-backed).
+// cmd/kush initializes viper from ~/.config/kush/config.yaml and the KUSH_ env
+// prefix; this package is the typed, defaulted read side.
 package config
 
 import (
@@ -31,6 +30,12 @@ const (
 	KeyPicker = "picker"
 	// KeyShell is the config key holding the subshell override.
 	KeyShell = "shell"
+	// KeyPreExecHook is the config key holding the global pre-exec hook.
+	KeyPreExecHook = "pre_exec_hook"
+	// KeyContexts is the config key holding per-context settings.
+	KeyContexts = "contexts"
+	// KeyContextPreExecHook is the per-context key holding a pre-exec hook.
+	KeyContextPreExecHook = "pre_exec_hook"
 )
 
 // Shell returns the shell kush should fork for a subshell, or "" to fall back
@@ -69,4 +74,36 @@ func LookupLocations() []string {
 		return nil
 	}
 	return locs
+}
+
+// PreExecHook returns the hook configured for ctxName. A per-context hook
+// overrides the global hook; an empty value means "run no hook".
+func PreExecHook(ctxName string) string {
+	if hook := contextPreExecHook(ctxName); hook != "" {
+		return hook
+	}
+	return strings.TrimSpace(viper.GetString(KeyPreExecHook))
+}
+
+func contextPreExecHook(ctxName string) string {
+	if ctxName == "" {
+		return ""
+	}
+	contexts := viper.GetStringMap(KeyContexts)
+	raw, ok := contexts[ctxName]
+	if !ok {
+		raw, ok = contexts[strings.ToLower(ctxName)]
+	}
+	if !ok {
+		return ""
+	}
+	settings, ok := raw.(map[string]any)
+	if !ok {
+		return ""
+	}
+	hook, ok := settings[KeyContextPreExecHook].(string)
+	if !ok {
+		return ""
+	}
+	return strings.TrimSpace(hook)
 }

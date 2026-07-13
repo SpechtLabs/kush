@@ -89,6 +89,28 @@ func runCtx(ctx context.Context, warnOut io.Writer, ctxName, namespace string) e
 		}
 	}
 
+	ctxDef, ok := cfg.Contexts[ctxName]
+	if !ok {
+		_, err = kubeconfig.Extract(cfg, ctxName, namespace)
+		if err != nil {
+			return humane.Wrap(err, fmt.Sprintf("cannot isolate context %q", ctxName), "run 'kush lint' to find broken context references")
+		}
+	}
+	hookNamespace := namespace
+	if hookNamespace == "" && ok {
+		hookNamespace = ctxDef.Namespace
+	}
+	err = runPreExecHook(ctx, ctxName, hookNamespace)
+	if err != nil {
+		return err
+	}
+	if config.PreExecHook(ctxName) != "" {
+		cfg, err = resolveLoad(warnOut)
+		if err != nil {
+			return humane.Wrap(err, "cannot reload kubeconfig after pre-exec hook", "check whether the hook changed or removed a configured kubeconfig")
+		}
+	}
+
 	out, err := kubeconfig.Extract(cfg, ctxName, namespace)
 	if err != nil {
 		return humane.Wrap(err, fmt.Sprintf("cannot isolate context %q", ctxName), "run 'kush lint' to find broken context references")

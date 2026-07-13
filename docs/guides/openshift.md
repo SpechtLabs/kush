@@ -90,6 +90,27 @@ web-7d9f8b6c5-x2z9k      1/1     Running   0          3h
 
 :::
 
+## Refresh auth before entering
+
+If you do not want to remember a manual `oc login` before opening a kush shell, use a pre-exec hook. It runs after kush knows the target context, but before kush extracts the isolated kubeconfig. After the hook succeeds, kush reloads kubeconfig, so any auth state refreshed by `oc` is included in the throwaway kubeconfig.
+
+For a single OpenShift context, configure the hook under that context name:
+
+```yaml
+# ~/.config/kush/config.yaml
+contexts:
+  default/api-mycluster-example-com:6443/kube:admin:
+    pre_exec_hook: "oc whoami >/dev/null 2>&1 || oc login https://api.mycluster.example.com:6443"
+```
+
+For a setup where the auth command can derive everything from the selected context, use the global hook and `KUSH_CONTEXT`:
+
+```yaml
+pre_exec_hook: "oc whoami --context \"$KUSH_CONTEXT\" >/dev/null 2>&1 || oc login https://api.mycluster.example.com:6443"
+```
+
+If the hook exits non-zero, kush stops instead of opening a shell with stale credentials. This is still local-only behavior: kush does not call the OpenShift API itself; it just runs your configured command before creating the isolated kubeconfig.
+
 ## Long sessions: use a refreshing credential
 
 You can sidestep expiry entirely by authenticating with a credential that refreshes on demand instead of a static token. Configure OIDC against your cluster's OAuth server through an `oc`/`kubectl` [exec credential plugin](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#client-go-credential-plugins) such as `kubelogin` or `oc-oidc`. Your `user` block then becomes an `exec:` stanza rather than a hard-coded token:
@@ -110,4 +131,4 @@ The exec plugin config lives in the temp kubeconfig with the same `0600`/`0700` 
 
 ## Recap
 
-kush needs no OpenShift-specific setup: `oc login`, then `kush <context>`, then use `oc` normally. Projects are just namespaces, so `kush ns` and `oc project` do the same isolated thing. The only wrinkle is that static OAuth tokens expire; re-run `oc login` inside the shell to refresh in place, or move to an OIDC exec credential and stop thinking about it.
+kush needs no OpenShift-specific setup: `oc login`, then `kush <context>`, then use `oc` normally. Projects are just namespaces, so `kush ns` and `oc project` do the same isolated thing. The only wrinkle is that static OAuth tokens expire; re-run `oc login` inside the shell to refresh in place, use a pre-exec hook to refresh before entering, or move to an OIDC exec credential and stop thinking about it.

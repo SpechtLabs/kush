@@ -22,6 +22,8 @@ kush looks for `config.yaml` in, in order:
 | `context_lookup_locations` | list of strings | `[$KUBECONFIG, ~/.kube/config]` | none |
 | `picker` | string (`auto` \| `builtin` \| `fzf`) | `auto` | `KUSH_PICKER` |
 | `shell` | string | `""` (uses `$SHELL`, then `/bin/bash`) | `KUSH_SHELL` |
+| `pre_exec_hook` | string | `""` | none |
+| `contexts.<name>.pre_exec_hook` | string | `""` | none |
 
 ### `context_lookup_locations`
 
@@ -57,6 +59,35 @@ Controls which context picker `kush` (no argument) and `kush ctx` (no argument) 
 
 The shell kush forks when entering a context. Empty string (the default) means "use `$SHELL`, falling back to `/bin/bash` if that's unset." Set this explicitly when your interactive shell differs from your login `$SHELL` (for example, you run `fish` day to day but `$SHELL` is still set to `/bin/zsh`), so that subshell command history and tools like atuin land where you actually expect them.
 
+### `pre_exec_hook`
+
+A shell command to run after kush knows the target context, but before it creates the isolated kubeconfig and starts the subshell or `kush exec` command. If the hook exits non-zero, kush aborts.
+
+Use this for context-specific authentication that must happen before entering the isolated environment:
+
+```yaml
+pre_exec_hook: "tsh join $KUSH_CONTEXT"
+```
+
+Hooks run through your configured `shell`, then `$SHELL`, then `/bin/sh`. They inherit stdin/stdout/stderr, so interactive auth prompts work. kush also adds these environment variables for the hook:
+
+| Variable | Meaning |
+| --- | --- |
+| `KUSH_CONTEXT` | Target context name. |
+| `KUSH_NAMESPACE` | Target namespace, if one is known. |
+
+Per-context hooks override the global hook:
+
+```yaml
+pre_exec_hook: "tsh join $KUSH_CONTEXT"
+
+contexts:
+  cluster-123:
+    pre_exec_hook: "tsh join cluster-123"
+```
+
+After a successful hook, kush reloads kubeconfig before extracting the isolated context, so hooks that refresh kubeconfig-backed auth state are reflected in the shell or command.
+
 ## State environment variables
 
 These are not config; kush *sets* them inside every subshell it forks (both `kush ctx` and `kush ns`), for the process consuming them to read:
@@ -90,4 +121,12 @@ picker: auto
 # Shell kush forks for interactive subshells.
 # Empty string (default) = $SHELL, falling back to /bin/bash.
 shell: /usr/local/bin/fish
+
+# Optional command to run before entering any context.
+pre_exec_hook: "tsh join $KUSH_CONTEXT"
+
+# Per-context settings override the global hook.
+contexts:
+  cluster-123:
+    pre_exec_hook: "tsh join cluster-123"
 ```
