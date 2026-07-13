@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.0](https://github.com/SpechtLabs/kush/compare/v1.0.1...v1.1.0) (2026-07-13)
+
+
+### Features
+
+* add Nix flake, package, and docs ([#32](https://github.com/SpechtLabs/kush/issues/32)) ([152367d](https://github.com/SpechtLabs/kush/commit/152367d00723fd48209bf783fea17cd4ce61dc1c))
+* add pre-exec hooks ([#34](https://github.com/SpechtLabs/kush/issues/34)) ([8a3c471](https://github.com/SpechtLabs/kush/commit/8a3c47199eb45d730601934020f2783669ec4eeb))
+* **krew:** Publish kush as a self-hosted Krew plugin ([#31](https://github.com/SpechtLabs/kush/issues/31)) ([c7b84fe](https://github.com/SpechtLabs/kush/commit/c7b84fe5e3bddc0b72d4336bd752c8a5958febba))
+
 ## [1.0.1](https://github.com/SpechtLabs/kush/compare/v1.0.0...v1.0.1) (2026-07-10)
 
 
