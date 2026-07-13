@@ -41,8 +41,8 @@ checksum:
 #
 # Krew creates a kubectl-kush shim that points at the packaged kush binary, so
 # the release artifact keeps the regular `kush` executable name. The generated
-# manifest is committed to this repository at plugins/kush.yaml, making this repo
-# a self-contained custom Krew index.
+# manifest is proposed to this repository at plugins/kush.yaml, making this repo
+# a self-contained custom Krew index after the generated PR is merged.
 krews:
   - name: kush
     ids:
@@ -58,7 +58,13 @@ krews:
     repository:
       owner: SpechtLabs
       name: kush
-      branch: main
+      branch: "krew/{{ .ProjectName }}-{{ .Version }}"
+      pull_request:
+        enabled: true
+        base:
+          owner: SpechtLabs
+          name: kush
+          branch: main
     commit_author:
       name: goreleaser-bot
       email: bot@specht-labs.de
