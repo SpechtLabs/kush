@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -24,16 +25,24 @@ func loginShell() string {
 }
 
 // Run forks a subshell with KUBECONFIG set to kubeconfig and extraEnv appended,
-// inheriting stdio, and blocks until it exits. shellPath selects the shell; an
+// inheriting stdio, and blocks until it exits. postExecHooks run in order in
+// the child shell before it becomes interactive, so exported environment
+// changes remain in the interactive session. shellPath selects the shell; an
 // empty shellPath falls back to $SHELL (then /bin/bash).
-func Run(ctx context.Context, shellPath, kubeconfig string, extraEnv []string) error {
+func Run(ctx context.Context, shellPath, kubeconfig string, extraEnv, postExecHooks []string) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	if shellPath == "" {
 		shellPath = loginShell()
 	}
-	cmd := exec.CommandContext(ctx, shellPath)
+	var cmd *exec.Cmd
+	if len(postExecHooks) == 0 {
+		cmd = exec.CommandContext(ctx, shellPath)
+	} else {
+		script := strings.Join(postExecHooks, "\n") + "\nexec " + quoteShellArg(shellPath)
+		cmd = exec.CommandContext(ctx, shellPath, "-c", script)
+	}
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -54,6 +63,11 @@ func Run(ctx context.Context, shellPath, kubeconfig string, extraEnv []string) e
 		return humane.Wrap(err, "failed to run subshell", "check that $SHELL points at a valid, executable shell")
 	}
 	return nil
+}
+
+// quoteShellArg emits a single shell word understood by POSIX shells and fish.
+func quoteShellArg(value string) string {
+	return "'" + strings.ReplaceAll(value, "'", "'\\''") + "'"
 }
 
 // setupSignalHandler tears the subshell down on external termination requests

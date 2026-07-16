@@ -91,7 +91,7 @@ current-context: prod
 		t.Fatal(err)
 	}
 	hookOut := filepath.Join(t.TempDir(), "hook.out")
-	configContent := fmt.Sprintf("pre_exec_hook: |\n  printf '%%s' \"$KUSH_CONTEXT\" > '%s'\n", hookOut)
+	configContent := fmt.Sprintf("pre_exec_hook:\n  - printf first > '%s'\n  - printf '%%s' \"$KUSH_CONTEXT\" >> '%s'\n", hookOut, hookOut)
 	if err := os.WriteFile(filepath.Join(kushConfigDir, "config.yaml"), []byte(configContent), 0o600); err != nil {
 		t.Fatal(err)
 	}
@@ -116,7 +116,7 @@ current-context: prod
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := string(hookBytes); got != "prod" {
-		t.Fatalf("hook output = %q, want prod", got)
+	if got := string(hookBytes); got != "firstprod" {
+		t.Fatalf("hook output = %q, want firstprod", got)
 	}
 }

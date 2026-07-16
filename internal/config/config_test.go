@@ -74,25 +74,25 @@ func TestLookupLocations(t *testing.T) {
 
 func TestPreExecHook(t *testing.T) {
 	viper.Reset()
-	if got := PreExecHook("prod"); got != "" {
-		t.Fatalf("PreExecHook() = %q, want empty when unset", got)
+	if got := PreExecHooks("prod"); got != nil {
+		t.Fatalf("PreExecHooks() = %v, want nil when unset", got)
 	}
 
 	viper.Set(KeyPreExecHook, " tsh join $KUSH_CONTEXT ")
-	if got := PreExecHook("prod"); got != "tsh join $KUSH_CONTEXT" {
-		t.Fatalf("PreExecHook() = %q, want global hook", got)
+	if got := PreExecHooks("prod"); len(got) != 1 || got[0] != "tsh join $KUSH_CONTEXT" {
+		t.Fatalf("PreExecHooks() = %v, want global hook", got)
 	}
 
 	viper.Set(KeyContexts, map[string]any{
 		"prod": map[string]any{
-			KeyContextPreExecHook: "tsh join prod",
+			KeyContextPreExecHook: []string{" prepare prod ", "authenticate prod"},
 		},
 	})
-	if got := PreExecHook("prod"); got != "tsh join prod" {
-		t.Fatalf("PreExecHook() = %q, want per-context hook", got)
+	if got := PreExecHooks("prod"); len(got) != 2 || got[0] != "prepare prod" || got[1] != "authenticate prod" {
+		t.Fatalf("PreExecHooks() = %v, want ordered per-context hooks", got)
 	}
-	if got := PreExecHook("dev"); got != "tsh join $KUSH_CONTEXT" {
-		t.Fatalf("PreExecHook() = %q, want global fallback", got)
+	if got := PreExecHooks("dev"); len(got) != 1 || got[0] != "tsh join $KUSH_CONTEXT" {
+		t.Fatalf("PreExecHooks() = %v, want global fallback", got)
 	}
 }
 
@@ -100,19 +100,33 @@ func TestPreExecHookFromYAML(t *testing.T) {
 	viper.Reset()
 	viper.SetConfigType("yaml")
 	err := viper.ReadConfig(strings.NewReader(`
-pre_exec_hook: "tsh join $KUSH_CONTEXT"
+pre_exec_hook:
+  - "prepare $KUSH_CONTEXT"
+  - "tsh join $KUSH_CONTEXT"
+post_exec_hook:
+  - "export KUSH_READY=1"
 contexts:
   cluster-123:
-    pre_exec_hook: "tsh join cluster-123"
+    pre_exec_hook:
+      - "prepare cluster-123"
+      - "tsh join cluster-123"
+    post_exec_hook:
+      - "export KUSH_CLUSTER=123"
 `))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if got := PreExecHook("cluster-123"); got != "tsh join cluster-123" {
-		t.Fatalf("PreExecHook() = %q, want per-context hook from YAML", got)
+	if got := PreExecHooks("cluster-123"); len(got) != 2 || got[0] != "prepare cluster-123" || got[1] != "tsh join cluster-123" {
+		t.Fatalf("PreExecHooks() = %v, want per-context hooks from YAML", got)
 	}
-	if got := PreExecHook("cluster-456"); got != "tsh join $KUSH_CONTEXT" {
-		t.Fatalf("PreExecHook() = %q, want global fallback from YAML", got)
+	if got := PreExecHooks("cluster-456"); len(got) != 2 || got[0] != "prepare $KUSH_CONTEXT" || got[1] != "tsh join $KUSH_CONTEXT" {
+		t.Fatalf("PreExecHooks() = %v, want global fallback from YAML", got)
+	}
+	if got := PostExecHooks("cluster-123"); len(got) != 1 || got[0] != "export KUSH_CLUSTER=123" {
+		t.Fatalf("PostExecHooks() = %v, want per-context hooks from YAML", got)
+	}
+	if got := PostExecHooks("cluster-456"); len(got) != 1 || got[0] != "export KUSH_READY=1" {
+		t.Fatalf("PostExecHooks() = %v, want global fallback from YAML", got)
 	}
 }

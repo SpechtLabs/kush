@@ -100,13 +100,15 @@ For a single OpenShift context, configure the hook under that context name:
 # ~/.config/kush/config.yaml
 contexts:
   default/api-mycluster-example-com:6443/kube:admin:
-    pre_exec_hook: "oc whoami >/dev/null 2>&1 || oc login https://api.mycluster.example.com:6443"
+    pre_exec_hook:
+      - "oc whoami >/dev/null 2>&1 || oc login https://api.mycluster.example.com:6443"
 ```
 
 For a setup where the auth command can derive everything from the selected context, use the global hook and `KUSH_CONTEXT`:
 
 ```yaml
-pre_exec_hook: "oc whoami --context \"$KUSH_CONTEXT\" >/dev/null 2>&1 || oc login https://api.mycluster.example.com:6443"
+pre_exec_hook:
+  - "oc whoami --context \"$KUSH_CONTEXT\" >/dev/null 2>&1 || oc login https://api.mycluster.example.com:6443"
 ```
 
 If the hook exits non-zero, kush stops instead of opening a shell with stale credentials. This is still local-only behavior: kush does not call the OpenShift API itself; it just runs your configured command before creating the isolated kubeconfig.

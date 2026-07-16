@@ -64,7 +64,7 @@ func runExec(ctx context.Context, warnOut io.Writer, ctxName, namespace string, 
 	if err != nil {
 		return err
 	}
-	if config.PreExecHook(ctxName) != "" {
+	if len(config.PreExecHooks(ctxName)) > 0 {
 		cfg, err = resolveLoad(warnOut)
 		if err != nil {
 			return humane.Wrap(err, "cannot reload kubeconfig after pre-exec hook", "check whether the hook changed or removed a configured kubeconfig")
