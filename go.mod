@@ -3,7 +3,7 @@ module github.com/spechtlabs/kush
 go 1.26.5
 
 require (
-	github.com/charmbracelet/huh v1.0.0
+	github.com/charmbracelet/huh/v2 v2.0.3
 	github.com/sierrasoftworks/humane-errors-go v0.0.0-20260709190713-8d6350c8d11d
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
