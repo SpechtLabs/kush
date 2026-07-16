@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/SpechtLabs/kush/compare/v1.1.1...v1.2.0) (2026-07-16)
+
+
+### Features
+
+* support ordered execution hooks ([#45](https://github.com/SpechtLabs/kush/issues/45)) ([cddab59](https://github.com/SpechtLabs/kush/commit/cddab5966a33860ce40476a5fad0341b717ef969))
+
+
+### Bug Fixes
+
+* **release:** generate conventional Krew PR titles ([#47](https://github.com/SpechtLabs/kush/issues/47)) ([64a114e](https://github.com/SpechtLabs/kush/commit/64a114e3b807ad57bac5cd3512a747da7cb4bbe4))
+
 ## [1.1.1](https://github.com/SpechtLabs/kush/compare/v1.1.0...v1.1.1) (2026-07-13)
 
 
