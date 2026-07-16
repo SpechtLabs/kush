@@ -32,10 +32,14 @@ const (
 	KeyShell = "shell"
 	// KeyPreExecHook is the config key holding the global pre-exec hook.
 	KeyPreExecHook = "pre_exec_hook"
+	// KeyPostExecHook is the config key holding the global post-exec hook.
+	KeyPostExecHook = "post_exec_hook"
 	// KeyContexts is the config key holding per-context settings.
 	KeyContexts = "contexts"
 	// KeyContextPreExecHook is the per-context key holding a pre-exec hook.
 	KeyContextPreExecHook = "pre_exec_hook"
+	// KeyContextPostExecHook is the per-context key holding a post-exec hook.
+	KeyContextPostExecHook = "post_exec_hook"
 )
 
 // Shell returns the shell kush should fork for a subshell, or "" to fall back
@@ -76,18 +80,28 @@ func LookupLocations() []string {
 	return locs
 }
 
-// PreExecHook returns the hook configured for ctxName. A per-context hook
-// overrides the global hook; an empty value means "run no hook".
-func PreExecHook(ctxName string) string {
-	if hook := contextPreExecHook(ctxName); hook != "" {
-		return hook
-	}
-	return strings.TrimSpace(viper.GetString(KeyPreExecHook))
+// PreExecHooks returns the hooks configured for ctxName. Per-context hooks
+// override the global hooks; an empty list means "run no hooks".
+func PreExecHooks(ctxName string) []string {
+	return hooks(ctxName, KeyPreExecHook, KeyContextPreExecHook)
 }
 
-func contextPreExecHook(ctxName string) string {
+// PostExecHooks returns the hooks configured for ctxName. Per-context hooks
+// override the global hooks; an empty list means "run no hooks".
+func PostExecHooks(ctxName string) []string {
+	return hooks(ctxName, KeyPostExecHook, KeyContextPostExecHook)
+}
+
+func hooks(ctxName, globalKey, contextKey string) []string {
+	if configured := contextHooks(ctxName, contextKey); len(configured) > 0 {
+		return configured
+	}
+	return hookList(viper.Get(globalKey))
+}
+
+func contextHooks(ctxName, key string) []string {
 	if ctxName == "" {
-		return ""
+		return nil
 	}
 	contexts := viper.GetStringMap(KeyContexts)
 	raw, ok := contexts[ctxName]
@@ -95,15 +109,40 @@ func contextPreExecHook(ctxName string) string {
 		raw, ok = contexts[strings.ToLower(ctxName)]
 	}
 	if !ok {
-		return ""
+		return nil
 	}
 	settings, ok := raw.(map[string]any)
 	if !ok {
-		return ""
+		return nil
 	}
-	hook, ok := settings[KeyContextPreExecHook].(string)
-	if !ok {
-		return ""
+	return hookList(settings[key])
+}
+
+// hookList accepts the documented list form and the old scalar form so
+// existing configurations continue to work while users migrate.
+func hookList(raw any) []string {
+	var values []string
+	switch value := raw.(type) {
+	case string:
+		values = []string{value}
+	case []string:
+		values = value
+	case []any:
+		values = make([]string, 0, len(value))
+		for _, item := range value {
+			if hook, ok := item.(string); ok {
+				values = append(values, hook)
+			}
+		}
+	default:
+		return nil
 	}
-	return strings.TrimSpace(hook)
+
+	hooks := make([]string, 0, len(values))
+	for _, value := range values {
+		if hook := strings.TrimSpace(value); hook != "" {
+			hooks = append(hooks, hook)
+		}
+	}
+	return hooks
 }

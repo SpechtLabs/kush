@@ -104,7 +104,7 @@ func runCtx(ctx context.Context, warnOut io.Writer, ctxName, namespace string) e
 	if err != nil {
 		return err
 	}
-	if config.PreExecHook(ctxName) != "" {
+	if len(config.PreExecHooks(ctxName)) > 0 {
 		cfg, err = resolveLoad(warnOut)
 		if err != nil {
 			return humane.Wrap(err, "cannot reload kubeconfig after pre-exec hook", "check whether the hook changed or removed a configured kubeconfig")
@@ -127,5 +127,5 @@ func runCtx(ctx context.Context, warnOut io.Writer, ctxName, namespace string) e
 		Namespace:  out.Contexts[ctxName].Namespace,
 		Kubeconfig: path,
 	}
-	return shell.Run(ctx, config.Shell(), path, st.Env())
+	return shell.Run(ctx, config.Shell(), path, st.Env(), config.PostExecHooks(ctxName))
 }

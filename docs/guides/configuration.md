@@ -72,24 +72,37 @@ The case that catches people: you run fish all day, but `$SHELL` still says `/bi
 
 ## Running auth before entering a context
 
-Some clusters need a login step before kubectl can use the context. `pre_exec_hook` runs after kush has selected the context, but before it starts the isolated shell or `kush exec` command:
+Some clusters need login steps before kubectl can use the context. `pre_exec_hook` is an ordered list that runs after kush has selected the context, but before it starts the isolated shell or `kush exec` command:
 
 ```yaml
 # ~/.config/kush/config.yaml
-pre_exec_hook: "tsh join $KUSH_CONTEXT"
+pre_exec_hook:
+  - "tsh join $KUSH_CONTEXT"
 ```
 
-The hook gets `KUSH_CONTEXT` in its environment, so selecting `kush ctx cluster-123` runs the example as `tsh join cluster-123`. If the hook exits non-zero, kush stops instead of opening a shell with stale credentials.
+Each hook gets `KUSH_CONTEXT` in its environment, so selecting `kush ctx cluster-123` runs the example as `tsh join cluster-123`. Hooks run in order. If one exits non-zero, kush stops without running the rest or opening a shell with stale credentials.
 
 Set a per-context hook when only some contexts need special handling, or when the command is not just the context name:
 
 ```yaml
 contexts:
   cluster-123:
-    pre_exec_hook: "tsh join cluster-123"
+    pre_exec_hook:
+      - "tsh join cluster-123"
 ```
 
-Per-context hooks override the global hook. After a successful hook, kush reloads kubeconfig before it extracts the isolated context.
+Per-context hooks override the global list. After all hooks succeed, kush reloads kubeconfig before it extracts the isolated context.
+
+## Initializing the kush shell
+
+Use `post_exec_hook` for commands that need the isolated environment or need to change the interactive shell itself:
+
+```yaml
+post_exec_hook:
+  - "export CLUSTER_ENV=$KUSH_CONTEXT"
+```
+
+These hooks run in order with the pinned `KUBECONFIG` and `KUSH_*` variables already set. They share the shell initialization process, so exported environment variables and directory changes remain in the prompt you receive. They apply only to interactive kush shells; `kush exec` does not run them. A per-context `post_exec_hook` list overrides the global post-exec list.
 
 ## A complete config.yaml
 
@@ -103,8 +116,14 @@ context_lookup_locations:
 picker: fzf
 shell: /opt/homebrew/bin/fish
 
-pre_exec_hook: "tsh join $KUSH_CONTEXT"
+pre_exec_hook:
+  - "tsh join $KUSH_CONTEXT"
+post_exec_hook:
+  - "export CLUSTER_ENV=$KUSH_CONTEXT"
 contexts:
   cluster-123:
-    pre_exec_hook: "tsh join cluster-123"
+    pre_exec_hook:
+      - "tsh join cluster-123"
+    post_exec_hook:
+      - "export CLUSTER_ENV=production"
 ```
