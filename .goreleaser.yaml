@@ -55,6 +55,7 @@ krews:
     short_description: "Ephemeral, isolated kube-context subshells"
     caveats: |
       The kubectl plugin entrypoint is `kubectl kush`.
+    commit_msg_template: "chore(krew): update {{ .ProjectName }} manifest to {{ .Tag }}"
     repository:
       owner: SpechtLabs
       name: kush
