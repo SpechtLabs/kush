@@ -4,32 +4,32 @@ kind: Plugin
 metadata:
   name: kush
 spec:
-  version: v1.1.1
+  version: v1.2.0
   platforms:
     - bin: kush
-      uri: https://github.com/spechtlabs/kush/releases/download/v1.1.1/kush_1.1.1_linux_arm64.tar.gz
-      sha256: 6aa50829b940da08383cf849feb5c4eceb6475a67cae777768ca07f5ea73ab29
+      uri: https://github.com/spechtlabs/kush/releases/download/v1.2.0/kush_1.2.0_linux_arm64.tar.gz
+      sha256: cf14abe8b8544b5bc98dc3f45746a5d1595492daa2f31b850269289156a329c7
       selector:
         matchLabels:
           os: linux
           arch: arm64
     - bin: kush
-      uri: https://github.com/spechtlabs/kush/releases/download/v1.1.1/kush_1.1.1_linux_amd64.tar.gz
-      sha256: 61fe3ef40b6630339677f2980d1a2e227c794d0b7d34870a5bb449ab79dc4a22
+      uri: https://github.com/spechtlabs/kush/releases/download/v1.2.0/kush_1.2.0_linux_amd64.tar.gz
+      sha256: b0ab30217b1a8f62deb41c4fbc624d30f3ed549f92e4c6afe3c0747d0034f0f5
       selector:
         matchLabels:
           os: linux
           arch: amd64
     - bin: kush
-      uri: https://github.com/spechtlabs/kush/releases/download/v1.1.1/kush_1.1.1_darwin_arm64.tar.gz
-      sha256: 6bfdbcdecc64f45544f65b9e4263e4caf75465bc85addd2166a096088fb51fef
+      uri: https://github.com/spechtlabs/kush/releases/download/v1.2.0/kush_1.2.0_darwin_arm64.tar.gz
+      sha256: 5788b5230fe3c33fbc903b017e0242887f04bb5c2805b3858cd29fd65478a85f
       selector:
         matchLabels:
           os: darwin
           arch: arm64
     - bin: kush
-      uri: https://github.com/spechtlabs/kush/releases/download/v1.1.1/kush_1.1.1_darwin_amd64.tar.gz
-      sha256: bfdfd8498a1c369e51097528239a3257af215c38e98873c11aca44ce6e57b456
+      uri: https://github.com/spechtlabs/kush/releases/download/v1.2.0/kush_1.2.0_darwin_amd64.tar.gz
+      sha256: ef48e0200c1180f44b3ae44555edf7bb86d3730a6a6ced024c62a95db47553b2
       selector:
         matchLabels:
           os: darwin
