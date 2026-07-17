@@ -10,7 +10,7 @@ pre-commit = "4.6.0"
 # linter
 golangci-lint = "2.12.2"
 node = "24.18.0"
-markdownlint-cli2 = "0.23.0"
+markdownlint-cli2 = "0.23.1"
 
 # Kubernetes tools
 kustomize = "5.8.1" # Pin version for reproducible manifest builds across tasks/CI
