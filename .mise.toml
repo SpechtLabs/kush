@@ -17,7 +17,7 @@ kustomize = "5.8.1" # Pin version for reproducible manifest builds across tasks/
 kind = "0.32.0"
 kubectl = "1.36.4"
 k9s = "0.51.0"
-yq = "4.53.4"
+yq = "4.53.6"
 yamllint = "1.38.0"
 
 # doc tools
