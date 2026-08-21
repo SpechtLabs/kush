@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.1](https://github.com/SpechtLabs/kush/compare/v1.2.0...v1.2.1) (2026-08-21)
+
+
+### Bug Fixes
+
+* **deps:** update dependency markdown-it-emoji to ^3.1.0 ([#56](https://github.com/SpechtLabs/kush/issues/56)) ([c57d8f0](https://github.com/SpechtLabs/kush/commit/c57d8f0bb2fbc2a36d720fc20ad6c76a7b8ae02b))
+* **deps:** update dependency mermaid to ^11.16.1 ([#74](https://github.com/SpechtLabs/kush/issues/74)) ([e9404a9](https://github.com/SpechtLabs/kush/commit/e9404a92d787d05c93c8d69a2e8ce7d6c1d823d8))
+* **deps:** update dependency mermaid to ^11.17.0 ([#84](https://github.com/SpechtLabs/kush/issues/84)) ([89671cc](https://github.com/SpechtLabs/kush/commit/89671ccd1bdc682fc39be8d1fd70419635576dfe))
+
 ## [1.2.0](https://github.com/SpechtLabs/kush/compare/v1.1.1...v1.2.0) (2026-07-16)
 
 
