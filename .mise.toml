@@ -9,7 +9,7 @@ pre-commit = "4.6.2"
 
 # linter
 golangci-lint = "2.13.1"
-node = "24.19.0"
+node = "24.20.0"
 markdownlint-cli2 = "0.23.2"
 
 # Kubernetes tools
