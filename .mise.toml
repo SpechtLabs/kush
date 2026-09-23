@@ -24,7 +24,7 @@ yamllint = "1.38.0"
 "npm:markdown-link-check" = "3.15.0"
 bun = "1.4.2"
 goreleaser = "2.18.2"
-pipx = "1.17.5"
+pipx = "1.17.6"
 
 [tasks.build]
 description = "Build the kush binary into bin/"
