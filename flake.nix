@@ -14,7 +14,10 @@
     in
     {
       packages = forEachSupportedSystem ({ pkgs }: {
+        # nixpkgs' default go lags behind; go.mod requires Go 1.27.
         default = pkgs.callPackage ./package.nix {
+          buildGoModule = pkgs.buildGo127Module;
+          go = pkgs.go_1_27;
           version = self.shortRev or self.dirtyShortRev or "dev";
           commit = self.rev or "none";
         };
@@ -23,7 +26,7 @@
       devShells = forEachSupportedSystem ({ pkgs }: {
         default = pkgs.mkShell {
           packages = with pkgs; [
-            go
+            go_1_27
             gopls
             gotools
             golangci-lint

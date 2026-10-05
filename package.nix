@@ -13,7 +13,7 @@ buildGoModule {
 
   # Stale after a go.sum change (renovate gomod bumps) → the `nix` CI job
   # goes red. Fix with: mise run nix:update-hash
-  vendorHash = "sha256-j9888cQvkpiH/uBRjMGOa3s9qJ6Sa0MkX7NNucHiMtU=";
+  vendorHash = "sha256-8/Dc0Mc9BaDosMFuEjKHc+AlO1aXVAcRqf6gbiG745k=";
 
   subPackages = [ "cmd/kush" ];
 
