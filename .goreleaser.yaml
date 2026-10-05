@@ -79,8 +79,8 @@ homebrew_casks:
       branch: main
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     directory: Casks
-    homepage: "https://kush.specht-labs.de"
-    description: "Ephemeral, isolated kube-context subshells: a private, throwaway kubeconfig per shell."
+    homepage: "https://kush.specht-labs.de/"
+    description: "Isolated kube-context subshells, each with its own throwaway kubeconfig"
     skip_upload: auto
     commit_author:
       name: goreleaser-bot
