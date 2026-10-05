@@ -155,6 +155,8 @@ run = ["bun install --frozen-lockfile", "bun run build"]
 
 # package.nix pins the hash of the vendored Go modules, so every go.sum change
 # (Renovate's included) needs a new one, or the Nix job in CI fails. Needs nix.
+# The nix-vendor-hash workflow runs this on every pull request that changes
+# go.mod or go.sum and commits the result.
 [tasks."nix:update-hash"]
 description = "Regenerate vendorHash in package.nix after a go.sum change"
 run = '''

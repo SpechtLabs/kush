@@ -121,7 +121,7 @@ When you enter a context, kush extracts just that context's cluster and user int
 
 ## Contributing
 
-Every tool is pinned in `.mise.toml`. Run `mise run test` for the race-enabled test suite, `mise run lint` for golangci-lint with the golint-sl plugin, and `mise run check` for every gate CI runs except the Nix build. After a change to `go.sum`, `mise run nix:update-hash` updates the Nix package's `vendorHash`. `mise run docs-dev` serves the documentation website locally.
+Every tool is pinned in `.mise.toml`. Run `mise run test` for the race-enabled test suite, `mise run lint` for golangci-lint with the golint-sl plugin, and `mise run check` for every gate CI runs except the Nix build. After a change to `go.sum`, `mise run nix:update-hash` updates the Nix package's `vendorHash`; on a pull request, the nix-vendor-hash workflow does it and commits the result. `mise run docs-dev` serves the documentation website locally.
 
 ## License
 

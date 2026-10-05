@@ -1,0 +1,84 @@
+name: Nix vendorHash
+
+# package.nix pins the hash of the vendored Go modules, so every go.mod or
+# go.sum change, Renovate's included, needs a new vendorHash before the Nix job
+# in go.yaml passes. This works it out with `mise run nix:update-hash` and
+# commits it to the pull request's branch.
+on:
+  pull_request:
+    paths:
+      - "**/go.mod"
+      - "**/go.sum"
+
+# GITHUB_TOKEN only reads. The push uses RELEASE_PLEASE_TOKEN (see the
+# checkout step), because GitHub doesn't start workflows for what
+# GITHUB_TOKEN pushes: the pull request's CI would never run on the fixed
+# commit.
+permissions:
+  contents: read
+
+# A new push to the pull request supersedes the run in flight.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  # mise itself, pinned; go.yaml explains why.
+  # renovate: datasource=github-releases depName=jdx/mise extractVersion=^v(?<version>.+)$
+  MISE_VERSION: 2026.10.2
+
+jobs:
+  update:
+    name: Update vendorHash
+    runs-on: ubuntu-latest
+    # Only branches of this repository: a fork's pull request gets neither the
+    # secret nor a branch this workflow may push to.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      # The branch itself rather than the merge commit, so the commit below
+      # lands on it. RELEASE_PLEASE_TOKEN, the fine-grained token release.yaml
+      # already uses, needs Contents: read and write on this repository.
+      - name: Checkout the pull request's branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+
+      # mise has no Nix backend, so Nix comes from the same pinned installer as
+      # the Nix job in go.yaml.
+      - name: Install Nix
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      # Only the task runner: nix:update-hash needs nothing but nix, grep and
+      # sed.
+      - name: Set up mise
+        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        with:
+          version: ${{ env.MISE_VERSION }}
+          install: false
+
+      - name: Work out the vendorHash
+        env:
+          MISE_TASK_RUN_AUTO_INSTALL: "false"
+        run: mise run nix:update-hash
+
+      # The run that the push below starts finds the hash correct and stops
+      # here, because package.nix doesn't change. The commit author is in
+      # renovate.json's gitIgnoredAuthors, so Renovate keeps rebasing its own
+      # pull requests after this commit.
+      - name: Commit the new vendorHash
+        env:
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- package.nix; then
+            echo "vendorHash is already correct."
+            exit 0
+          fi
+          git config user.name goreleaser-bot
+          git config user.email bot@specht-labs.de
+          git add package.nix
+          git commit -m "build(nix): update vendorHash for the new go.sum"
+          git push origin "HEAD:${BRANCH}"

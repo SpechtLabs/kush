@@ -122,8 +122,9 @@ jobs:
           fail_ci_if_error: false
 
   # The flake builds kush with nixpkgs' Go from the modules package.nix pins
-  # by hash. A go.sum change without a new vendorHash fails here; `mise run
-  # nix:update-hash` writes the new one.
+  # by hash. A go.sum change without a new vendorHash fails here until
+  # nix-vendor-hash.yaml has committed the new one (or `mise run
+  # nix:update-hash` has, locally).
   nix:
     name: Nix Flake
     runs-on: ubuntu-latest
