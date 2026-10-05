@@ -14,7 +14,7 @@ import (
 // resolveLoad loads the merged kubeconfig from the configured lookup locations
 // (or the kubeconfig defaults when unset), printing any duplicate-context
 // warnings to warnOut. Pass cmd.ErrOrStderr() as warnOut.
-func resolveLoad(warnOut io.Writer) (*api.Config, error) {
+func resolveLoad(warnOut io.Writer) (*api.Config, humane.Error) {
 	cfg, warnings, err := kubeconfig.LoadResolved(config.LookupLocations())
 	if err != nil {
 		return nil, humane.Wrap(err, "cannot load kubeconfig locations", "check context_lookup_locations in your kush config")
@@ -26,7 +26,7 @@ func resolveLoad(warnOut io.Writer) (*api.Config, error) {
 }
 
 // pickerMode translates the configured picker mode into a picker.Mode.
-func pickerMode() (picker.Mode, error) {
+func pickerMode() (picker.Mode, humane.Error) {
 	m, err := config.Picker()
 	if err != nil {
 		return picker.Auto, humane.Wrap(err, "invalid picker configuration", "set 'picker' to auto, builtin, or fzf")

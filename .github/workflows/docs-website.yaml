@@ -6,15 +6,38 @@ on:
     branches:
       - main
     paths:
-      - docs/**/*
+      - docs/**
+      - "**.md"
+      - .markdownlint-cli2.yaml
+      - .mise.toml
       - .github/workflows/docs-website.yaml
   pull_request:
     types: [opened, synchronize, reopened]
     branches:
       - main
     paths:
-      - docs/**/*
+      - docs/**
+      - "**.md"
+      - .markdownlint-cli2.yaml
+      - .mise.toml
       - .github/workflows/docs-website.yaml
+
+# Each job installs the tools it needs with mise-action's install_args. Without
+# this, `mise run` installs every tool in .mise.toml first, gopls and delve
+# included, which makes each job wait on (and fail with) the module proxy for
+# tools it never runs.
+env:
+  MISE_TASK_RUN_AUTO_INSTALL: "false"
+  # mise itself, pinned; go.yaml explains why.
+  # renovate: datasource=github-releases depName=jdx/mise extractVersion=^v(?<version>.+)$
+  MISE_VERSION: 2026.10.2
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   md:
@@ -22,42 +45,48 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: DavidAnson/markdownlint-cli2-action@v24
+      # Runs the markdownlint-cli2 pinned in .mise.toml, so local and CI agree.
+      # markdownlint-cli2 is an npm package, and mise installs it with the node
+      # .mise.toml pins, so node comes first.
+      - name: Set up mise
+        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
         with:
-          globs: "docs/**/*.md"
+          version: ${{ env.MISE_VERSION }}
+          install_args: node markdownlint-cli2
+
+      - name: Lint docs
+        run: mise run docs-lint
 
   build:
-    runs-on: ubuntu-latest
     name: Build (Docs)
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Set up mise
+        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
         with:
-          bun-version: 1.4.2
-
-      - name: Install Dependencies
-        run: cd docs && bun install --frozen-lockfile
+          version: ${{ env.MISE_VERSION }}
+          install_args: bun
 
       - name: Build
-        run: cd docs && bun run build
+        run: mise run docs-build
 
       - name: Upload Artifacts
-        # Only the deploy jobs consume this, and they run on push/dispatch.
-        # Skipping the upload on PRs avoids spending Actions artifact storage on
-        # builds that never deploy.
+        # Only the deploy job consumes this, and it runs on push/dispatch.
         if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: docs
           path: docs/.vuepress/dist
           retention-days: 1
 
+  # kush.specht-labs.de is served by Static Pages.
   deploy-static-pages:
+    name: Deploy
     runs-on: ubuntu-latest
     needs:
       - build
@@ -68,13 +97,13 @@ jobs:
       pages: write
     steps:
       - name: Download Artifacts for Website
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: docs
           path: ./dist
 
       - name: Upload to Static Pages
-        uses: SpechtLabs/StaticPages-Upload@main
+        uses: SpechtLabs/StaticPages-Upload@ea3263677e20c44d61185a8318a06659d6e17fea # main
         with:
           endpoint: https://pages.specht-labs.de
           site-dir: dist/

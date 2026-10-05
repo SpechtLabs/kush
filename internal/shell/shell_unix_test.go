@@ -28,11 +28,11 @@ printf '%%s|%%s|%%s' "$POST_EXEC_VALUE" "$KUBECONFIG" "$KUSH_CONTEXT" > %q
 		t.Fatal(err)
 	}
 
-	err := Run(context.Background(), shellPath, "/tmp/kubeconfig", []string{"KUSH_CONTEXT=prod"}, []string{
+	hooks := []string{
 		"export POST_EXEC_VALUE=first",
 		"export POST_EXEC_VALUE=$POST_EXEC_VALUE-second",
-	})
-	if err != nil {
+	}
+	if err := Run(context.Background(), shellPath, "/tmp/kubeconfig", []string{"KUSH_CONTEXT=prod"}, hooks); err != nil {
 		t.Fatal(err)
 	}
 

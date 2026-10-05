@@ -10,7 +10,7 @@ import (
 	"github.com/spechtlabs/kush/internal/config"
 )
 
-func runPreExecHook(ctx context.Context, ctxName, namespace string) error {
+func runPreExecHook(ctx context.Context, ctxName, namespace string) humane.Error {
 	shellPath := config.Shell()
 	if shellPath == "" {
 		shellPath = os.Getenv("SHELL")

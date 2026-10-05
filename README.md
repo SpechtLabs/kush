@@ -119,6 +119,10 @@ Inside every subshell, kush sets `KUSH_ACTIVE`, `KUSH_CONTEXT`, `KUSH_NAMESPACE`
 
 When you enter a context, kush extracts just that context's cluster and user into a fresh temp kubeconfig, points `KUBECONFIG` at it, and forks your shell. On exit (normal, signal, or crash) the temp file is deleted, and a stale-file sweep reaps anything a `kill -9` might have left behind. Your real kubeconfig is only ever read, never written. The [isolation writeup](./docs/understanding/isolation.md) covers the mechanics.
 
+## Contributing
+
+Every tool is pinned in `.mise.toml`. Run `mise run test` for the race-enabled test suite, `mise run lint` for golangci-lint with the golint-sl plugin, and `mise run check` for every gate CI runs except the Nix build. After a change to `go.sum`, `mise run nix:update-hash` updates the Nix package's `vendorHash`. `mise run docs-dev` serves the documentation website locally.
+
 ## License
 
 Apache 2.0. See [LICENSE](./LICENSE).

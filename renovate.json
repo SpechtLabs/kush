@@ -2,7 +2,9 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    ":semanticCommits"
+    ":semanticCommits",
+    "helpers:pinGitHubActionDigests",
+    "customManagers:githubActionsVersions"
   ],
   "timezone": "Europe/Berlin",
   "dependencyDashboard": true,
@@ -16,6 +18,27 @@
   "labels": [
     "dependencies"
   ],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/testdata/**",
+    "**/test/**",
+    "**/tests/**",
+    "**/__fixtures__/**"
+  ],
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "labels": [
+      "dependencies",
+      "security"
+    ]
+  },
+  "postUpdateOptions": [
+    "gomodTidy",
+    "gomodUpdateImportPaths"
+  ],
+  "pre-commit": {
+    "enabled": true
+  },
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": [
@@ -37,9 +60,44 @@
       "packageNameTemplate": "go",
       "datasourceTemplate": "golang-version",
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the golangci-lint version the custom-gcl binary is built from.",
+      "managerFilePatterns": [
+        "/(^|/)\\.custom-gcl\\.yml$/"
+      ],
+      "matchStrings": [
+        "(?:^|\\n)version:\\s*\"?(?<currentValue>v\\d+\\.\\d+\\.\\d+)\"?"
+      ],
+      "depNameTemplate": "golangci-lint",
+      "packageNameTemplate": "golangci/golangci-lint",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the golint-sl plugin version baked into custom-gcl.",
+      "managerFilePatterns": [
+        "/(^|/)\\.custom-gcl\\.yml$/"
+      ],
+      "matchStrings": [
+        "module:\\s*\"(?<depName>github\\.com/spechtlabs/golint-sl)\"\\s*\\n\\s*version:\\s*\"(?<currentValue>v[^\"]+)\""
+      ],
+      "datasourceTemplate": "go",
+      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
+    {
+      "description": "mise is pinned as MISE_VERSION in every workflow that sets it up; move them at once, and only to a release a day old, the age mise-action waited for before the pin.",
+      "matchDepNames": [
+        "jdx/mise"
+      ],
+      "groupName": "mise",
+      "groupSlug": "mise",
+      "minimumReleaseAge": "1 day"
+    },
     {
       "description": "Automerge digest, pin, patch, and minor updates once CI passes.",
       "matchUpdateTypes": [
@@ -74,17 +132,7 @@
       "dependencyDashboardApproval": false
     },
     {
-      "description": "Do not manage npm as a separate mise tool; Node provides npm.",
-      "matchFileNames": [
-        ".mise.toml"
-      ],
-      "matchDepNames": [
-        "npm"
-      ],
-      "enabled": false
-    },
-    {
-      "description": "Group Go module updates together.",
+      "description": "Group Go module updates together. Every go.sum change needs a new vendorHash in package.nix (`mise run nix:update-hash`), or the Nix job fails and the update waits.",
       "matchManagers": [
         "gomod"
       ],
@@ -92,7 +140,40 @@
       "groupSlug": "go-modules"
     },
     {
-      "description": "Update .mise.toml and go.mod Go versions together.",
+      "description": "The docs site ships nothing, and release-please releases the whole repository from one package, so a fix(deps) there would cut a kush release for a dependency nobody gets.",
+      "matchFileNames": [
+        "docs/**"
+      ],
+      "semanticCommitType": "chore"
+    },
+    {
+      "description": "Group docs site dependencies together.",
+      "matchFileNames": [
+        "docs/package.json",
+        "docs/bun.lock"
+      ],
+      "groupName": "docs dependencies",
+      "groupSlug": "docs-dependencies"
+    },
+    {
+      "description": "Hold the docs site on TypeScript 6 and below. TypeScript 7 is the native compiler and has no JavaScript API, and @vue/compiler-sfc reads files through that API (ts.sys) to resolve imported prop types, so the VuePress build fails on it. Lift this once @vue/compiler-sfc no longer needs it.",
+      "matchFileNames": [
+        "docs/package.json"
+      ],
+      "matchPackageNames": [
+        "typescript"
+      ],
+      "allowedVersions": "<7"
+    },
+    {
+      "description": "Leave engines.node alone. It is the oldest Node the docs site declares, not the toolchain; bump it by hand.",
+      "matchDepTypes": [
+        "engines"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Update .mise.toml's Go toolchain on its own; the go directive is handled below.",
       "matchDatasources": [
         "golang-version"
       ],
@@ -108,13 +189,40 @@
       "dependencyDashboardApproval": false
     },
     {
-      "description": "Group docs site dependencies together.",
-      "matchFileNames": [
-        "docs/package.json",
-        "docs/bun.lock"
+      "description": "Leave the go directive in go.mod alone. It is the minimum language version, not the toolchain; bumping it to a full patch version makes it equal to the toolchain. Bump it by hand. Renovate tracks the toolchain in .mise.toml instead.",
+      "matchManagers": [
+        "gomod"
       ],
-      "groupName": "docs dependencies",
-      "groupSlug": "docs-dependencies"
+      "matchDepTypes": [
+        "golang"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "golangci-lint is pinned in .mise.toml and .custom-gcl.yml; the two must never disagree.",
+      "matchDepNames": [
+        "golangci-lint"
+      ],
+      "groupName": "golangci-lint",
+      "groupSlug": "golangci-lint"
+    },
+    {
+      "description": "golint-sl is pinned in .custom-gcl.yml and .pre-commit-config.yaml; move both at once.",
+      "matchPackageNames": [
+        "/golint-sl$/i"
+      ],
+      "groupName": "golint-sl",
+      "groupSlug": "golint-sl"
+    },
+    {
+      "description": "The commit message check must parse with the release-please version the release-please action bundles (see its package-lock.json), not the newest one. Bump it by hand alongside the action.",
+      "matchFileNames": [
+        ".github/commit-lint/package.json"
+      ],
+      "matchPackageNames": [
+        "release-please"
+      ],
+      "enabled": false
     }
   ]
 }
