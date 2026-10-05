@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.2](https://github.com/SpechtLabs/kush/compare/v1.2.1...v1.2.2) (2026-10-05)
+
+
+### Bug Fixes
+
+* **deps:** require Go 1.27 and update client-go to v0.37.1 ([#148](https://github.com/SpechtLabs/kush/issues/148)) ([00ddaec](https://github.com/SpechtLabs/kush/commit/00ddaec7cbbd8cc233d0e26a88a11b031c169429))
+* **nix:** build the flake with Go 1.27 and update its vendorHash ([#150](https://github.com/SpechtLabs/kush/issues/150)) ([9feb0a7](https://github.com/SpechtLabs/kush/commit/9feb0a7c4e19671cf63cd853331db8c0f93c7fa5))
+* **release:** make the Homebrew cask pass brew style ([#151](https://github.com/SpechtLabs/kush/issues/151)) ([ac5fb78](https://github.com/SpechtLabs/kush/commit/ac5fb786d5e31a9aa43ad67637d12865134013e3))
+
 ## [1.2.1](https://github.com/SpechtLabs/kush/compare/v1.2.0...v1.2.1) (2026-10-04)
 
 
