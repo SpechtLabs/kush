@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -46,6 +47,7 @@ func TestCommands(t *testing.T) {
 		{name: "init with an unsupported shell", args: []string{"init", "tcsh"}, wantErr: `unsupported shell "tcsh"`},
 		{name: "lint a clean kubeconfig", args: []string{"lint"}, wantOut: "ok: no problems found"},
 		{name: "split into a directory", args: []string{"split", "-o", "SPLIT_DIR"}, wantSplits: []string{"dev", "prod"}},
+		{name: "split into a path under a file", args: []string{"split", "-o", "/dev/null/kush"}, wantErr: "failed to split the kubeconfig into /dev/null/kush"},
 		{name: "a named context", args: []string{"ctx", "prod"}},
 		{name: "exec in a namespace", args: []string{"exec", "prod", "-n", "audit", "--", "TRUE"}},
 	}
@@ -193,3 +195,22 @@ func TestSplitDefaultsToKubeKush(t *testing.T) {
 		}
 	}
 }
+
+func TestSplitReportsAFailedWrite(t *testing.T) {
+	isolatedEnv(t, namespacedKubeconfig)
+	root := NewRootCmd()
+	AddSubcommands(root)
+	root.SetOut(closedWriter{})
+	root.SetErr(io.Discard)
+	root.SetArgs([]string{"split", "-o", t.TempDir()})
+
+	err := root.ExecuteContext(context.Background())
+	if err == nil || !strings.Contains(err.Error(), "failed to print the path of") {
+		t.Fatalf("kush split to a closed stdout error = %v, want a failed print", err)
+	}
+}
+
+// closedWriter fails every write, like stdout after the pipe reader exited.
+type closedWriter struct{}
+
+func (closedWriter) Write([]byte) (int, error) { return 0, io.ErrClosedPipe }

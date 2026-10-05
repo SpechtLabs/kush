@@ -34,11 +34,11 @@ func newSplitCmd() *cobra.Command {
 			}
 			paths, err := kubeconfig.Split(cfg, dir)
 			if err != nil {
-				return err
+				return humane.Wrap(err, "failed to split the kubeconfig into "+dir, "fix the cause below, then re-run `kush split`")
 			}
 			for _, p := range paths {
 				if _, err := fmt.Fprintln(cmd.OutOrStdout(), p); err != nil {
-					return err
+					return humane.Wrap(err, "failed to print the path of "+p, "check that stdout is still open, e.g. that a pipe reader did not exit early")
 				}
 			}
 			return nil
