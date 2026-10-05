@@ -32,24 +32,27 @@ end
 `
 )
 
-var cmdInit = &cobra.Command{
-	Use:       "init <bash|zsh|fish>",
-	Short:     "Emit opt-in prompt-fallback shell glue",
-	Args:      cobra.ExactArgs(1),
-	ValidArgs: []string{"bash", "zsh", "fish"},
-	RunE: func(cmd *cobra.Command, args []string) error {
-		var snippet string
-		switch args[0] {
-		case "bash":
-			snippet = initBash
-		case "zsh":
-			snippet = initZsh
-		case "fish":
-			snippet = initFish
-		default:
-			return humane.New(fmt.Sprintf("unsupported shell %q", args[0]), "use one of: bash, zsh, fish")
-		}
-		_, err := fmt.Fprint(cmd.OutOrStdout(), snippet)
-		return err
-	},
+// newInitCmd builds `kush init`, which prints the prompt glue for a shell.
+func newInitCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:       "init <bash|zsh|fish>",
+		Short:     "Emit opt-in prompt-fallback shell glue",
+		Args:      cobra.ExactArgs(1),
+		ValidArgs: []string{"bash", "zsh", "fish"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			var snippet string
+			switch args[0] {
+			case "bash":
+				snippet = initBash
+			case "zsh":
+				snippet = initZsh
+			case "fish":
+				snippet = initFish
+			default:
+				return humane.New(fmt.Sprintf("unsupported shell %q", args[0]), "use one of: bash, zsh, fish")
+			}
+			_, err := fmt.Fprint(cmd.OutOrStdout(), snippet)
+			return err
+		},
+	}
 }

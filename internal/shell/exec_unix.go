@@ -26,8 +26,7 @@ func Exec(ctx context.Context, kubeconfig string, extraEnv, argv []string) error
 	cmd.Env = append(cmd.Env, extraEnv...)
 
 	if err := cmd.Run(); err != nil {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
+		if _, ok := errors.AsType[*exec.ExitError](err); ok {
 			return err // raw, so runExec can read ExitCode()
 		}
 		return humane.Wrap(err, "failed to run "+argv[0], "check the command exists on PATH")

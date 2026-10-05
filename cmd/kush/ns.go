@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	humane "github.com/sierrasoftworks/humane-errors-go"
@@ -10,35 +11,34 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var cmdNs = &cobra.Command{
-	Use:   "ns [name]",
-	Short: "Re-pin the namespace (inside a kush shell) or enter one for the current context",
-	Long: "Inside a kush shell, `kush ns <name>` re-pins the namespace in place " +
-		"(no new shell). Outside, it enters a subshell for the current context " +
-		"at that namespace. With no name it prompts for one.",
-	Args: cobra.MaximumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		name := ""
-		if len(args) == 1 {
-			name = args[0]
-		}
-		return runNs(cmd, name)
-	},
+// newNsCmd builds `kush ns`, which re-pins or enters a namespace.
+func newNsCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "ns [name]",
+		Short: "Re-pin the namespace (inside a kush shell) or enter one for the current context",
+		Long: "Inside a kush shell, `kush ns <name>` re-pins the namespace in place " +
+			"(no new shell). Outside, it enters a subshell for the current context " +
+			"at that namespace. With no name it prompts for one.",
+		Args: cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			name := ""
+			if len(args) == 1 {
+				name = args[0]
+			}
+			return runNs(cmd, name)
+		},
+	}
 }
 
-func runNs(cmd *cobra.Command, namespace string) error {
+func runNs(cmd *cobra.Command, namespace string) humane.Error {
 	ctx := cmd.Context()
 	if st, inShell := state.Current(); inShell {
 		// Inside a kush shell: edit the temp kubeconfig in place. Exempt from the
 		// nesting guard — no subshell is spawned.
 		if namespace == "" {
-			mode, err := pickerMode()
-			if err != nil {
-				return humane.Wrap(err, "cannot determine the namespace picker", "check the 'picker' config value or KUSH_PICKER")
-			}
-			namespace, err = picker.Prompt(ctx, mode, "kush ns> ")
-			if err != nil {
-				return humane.Wrap(err, "namespace prompt failed", "pass a namespace as an argument instead")
+			var err humane.Error
+			if namespace, err = promptNamespace(ctx); err != nil {
+				return err
 			}
 		}
 		if err := kubeconfig.SetNamespace(st.Kubeconfig, namespace); err != nil {
@@ -57,14 +57,22 @@ func runNs(cmd *cobra.Command, namespace string) error {
 		return humane.New("no current context set", "run `kush <context>` or `kubectl config use-context <ctx>` first")
 	}
 	if namespace == "" {
-		mode, err := pickerMode()
-		if err != nil {
-			return humane.Wrap(err, "cannot determine the namespace picker", "check the 'picker' config value or KUSH_PICKER")
-		}
-		namespace, err = picker.Prompt(ctx, mode, "kush ns> ")
-		if err != nil {
-			return humane.Wrap(err, "namespace prompt failed", "pass a namespace as an argument instead")
+		if namespace, err = promptNamespace(ctx); err != nil {
+			return err
 		}
 	}
 	return runCtx(ctx, cmd.ErrOrStderr(), cfg.CurrentContext, namespace)
+}
+
+// promptNamespace asks the user for a namespace with the configured picker.
+func promptNamespace(ctx context.Context) (string, humane.Error) {
+	mode, err := pickerMode()
+	if err != nil {
+		return "", humane.Wrap(err, "cannot determine the namespace picker", "check the 'picker' config value or KUSH_PICKER")
+	}
+	namespace, err := picker.Prompt(ctx, mode, "kush ns> ")
+	if err != nil {
+		return "", humane.Wrap(err, "namespace prompt failed", "pass a namespace as an argument instead")
+	}
+	return namespace, nil
 }

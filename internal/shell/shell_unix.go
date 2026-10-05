@@ -29,7 +29,7 @@ func loginShell() string {
 // the child shell before it becomes interactive, so exported environment
 // changes remain in the interactive session. shellPath selects the shell; an
 // empty shellPath falls back to $SHELL (then /bin/bash).
-func Run(ctx context.Context, shellPath, kubeconfig string, extraEnv, postExecHooks []string) error {
+func Run(ctx context.Context, shellPath, kubeconfig string, extraEnv, postExecHooks []string) humane.Error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -56,8 +56,7 @@ func Run(ctx context.Context, shellPath, kubeconfig string, extraEnv, postExecHo
 		// command inside it (or `exit N` / Ctrl-C) — that is normal for a
 		// subshell, not a kush failure, so don't surface it. Only a genuine
 		// failure to start/run the shell process is worth reporting.
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
+		if _, ok := errors.AsType[*exec.ExitError](err); ok {
 			return nil
 		}
 		return humane.Wrap(err, "failed to run subshell", "check that $SHELL points at a valid, executable shell")

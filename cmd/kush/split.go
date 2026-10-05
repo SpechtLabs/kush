@@ -10,39 +10,40 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var splitOutDir string
+// newSplitCmd builds `kush split`, which writes one kubeconfig per context.
+func newSplitCmd() *cobra.Command {
+	var outDir string
 
-var cmdSplit = &cobra.Command{
-	Use:   "split [-o dir]",
-	Short: "Split a monolithic kubeconfig into one self-contained file per context",
-	Args:  cobra.NoArgs,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		dir := splitOutDir
-		if dir == "" {
-			home, err := os.UserHomeDir()
-			if err != nil {
-				return humane.Wrap(err, "failed to resolve home dir", "pass an explicit output dir with -o <dir>")
+	splitCmd := &cobra.Command{
+		Use:   "split [-o dir]",
+		Short: "Split a monolithic kubeconfig into one self-contained file per context",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			dir := outDir
+			if dir == "" {
+				home, err := os.UserHomeDir()
+				if err != nil {
+					return humane.Wrap(err, "failed to resolve home dir", "pass an explicit output dir with -o <dir>")
+				}
+				dir = filepath.Join(home, ".kube", "kush")
 			}
-			dir = filepath.Join(home, ".kube", "kush")
-		}
 
-		cfg, err := resolveLoad(cmd.ErrOrStderr())
-		if err != nil {
-			return err
-		}
-		paths, err := kubeconfig.Split(cfg, dir)
-		if err != nil {
-			return err
-		}
-		for _, p := range paths {
-			if _, err := fmt.Fprintln(cmd.OutOrStdout(), p); err != nil {
+			cfg, herr := resolveLoad(cmd.ErrOrStderr())
+			if herr != nil {
+				return herr
+			}
+			paths, err := kubeconfig.Split(cfg, dir)
+			if err != nil {
 				return err
 			}
-		}
-		return nil
-	},
-}
-
-func init() {
-	cmdSplit.Flags().StringVarP(&splitOutDir, "out", "o", "", "output directory (default ~/.kube/kush)")
+			for _, p := range paths {
+				if _, err := fmt.Fprintln(cmd.OutOrStdout(), p); err != nil {
+					return err
+				}
+			}
+			return nil
+		},
+	}
+	splitCmd.Flags().StringVarP(&outDir, "out", "o", "", "output directory (default ~/.kube/kush)")
+	return splitCmd
 }

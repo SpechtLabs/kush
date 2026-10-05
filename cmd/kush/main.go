@@ -13,8 +13,7 @@ func main() {
 	root := NewRootCmd()
 	AddSubcommands(root)
 	if err := root.ExecuteContext(context.Background()); err != nil {
-		var herr humane.Error
-		if errors.As(err, &herr) {
+		if herr, ok := errors.AsType[humane.Error](err); ok {
 			fmt.Fprintln(os.Stderr, herr.Display())
 		} else {
 			fmt.Fprintln(os.Stderr, "Error:", err)

@@ -35,17 +35,17 @@ linters:
     - goprintffuncname
     - gosec
     - misspell
+    - modernize
     - nakedret
     - nolintlint
     - prealloc
     - revive
     - rowserrcheck
     - whitespace
-    - ginkgolinter
     - unconvert
     - unparam
 
-    # golint-sl: production-ready Go patterns (error handling, observability, K8s, safety)
+    # golint-sl: production-ready Go patterns (error handling, observability, safety)
     # https://golint.specht-labs.de/
     - golint-sl
 
@@ -55,12 +55,6 @@ linters:
       check-blank: false
     govet:
       enable-all: true
-      disable:
-        - fieldalignment # Too noisy for most projects
-    gosec:
-      excludes:
-        - G204 # kush intentionally execs the user's shell / fzf with a context name
-        - G302 # the private runtime dir is deliberately 0700 (owner must list it)
     misspell:
       locale: US
     revive:
@@ -72,41 +66,63 @@ linters:
         type: module
         description: SpechtLabs Go linter collection for production-ready code
         original-url: github.com/spechtlabs/golint-sl
-        settings:
-          # These are architectural suggestions ("extract helpers", "abstract the
-          # clock", "inject the loader") that add indirection for little gain in a
-          # small single-binary CLI.
-          disabled-analyzers:
-            - nestingdepth
-            - clockinterface
-            - interfaceconsistency
 
   exclusions:
     generated: lax
     rules:
-      # init() is the idiomatic cobra pattern for registering command flags.
-      - linters:
-          - gochecknoinits
-        path: cmd/kush/
-      # pkg/kubeconfig is a reusable library: it returns idiomatic `error` and
-      # wraps at the point each error originates, so it does not adopt the
-      # application's humane.Error return type or re-wrap on propagation.
-      - linters:
-          - golint-sl
-        path: pkg/kubeconfig/
-        text: (humaneerror|errorwrap)
-      # shell.Exec returns the raw *exec.ExitError so the caller can read the
-      # child's exit code; it cannot convert to humane.Error or wrap that path.
-      - linters:
-          - golint-sl
-        path: internal/shell/
-        text: (humaneerror|errorwrap)
       # Hold test files to a lighter bar than production code.
       - linters:
           - gosec
           - goconst
           - golint-sl
         path: _test\.go
+
+      - linters:
+          - govet
+        text: "^fieldalignment:"
+        path: _test\.go
+
+      # pkg/kubeconfig is a reusable library: it returns idiomatic `error` and
+      # wraps at the point each error originates, so it does not adopt the
+      # application's humane.Error return type or re-wrap on propagation.
+      # Load is the convenience form of LoadFrom, which takes the loading
+      # rules as a dependency; building the default rules is its whole job.
+      - linters:
+          - golint-sl
+        text: "^(humaneerror|errorwrap):"
+        path: ^pkg/kubeconfig/
+      - linters:
+          - golint-sl
+        text: "^interfaceconsistency: creating NewDefaultClientConfigLoadingRules"
+        path: ^pkg/kubeconfig/kubeconfig\.go$
+
+      # shell.Exec returns the raw *exec.ExitError so the caller can read the
+      # child's exit code; it cannot convert to humane.Error or wrap that path.
+      # The grace period before killing a child that ignores SIGTERM waits on
+      # a real process, which an injected clock cannot speed up.
+      - linters:
+          - golint-sl
+        text: "^(humaneerror|errorwrap):"
+        path: ^internal/shell/
+      - linters:
+          - golint-sl
+        text: "^clockinterface:"
+        path: ^internal/shell/shell_unix\.go$
+
+      # kush runs what its user asked for: their shell, their pre-exec and
+      # post-exec hooks, the command after `kush exec --`, and fzf from PATH.
+      - linters:
+          - gosec
+        text: "^(G204|G702):"
+        path: ^(cmd/kush/hooks\.go|internal/picker/picker\.go|internal/shell/)
+
+      # The private temp dir lives under $XDG_RUNTIME_DIR or the system temp
+      # dir by design, and is 0700 on purpose: its owner has to list it to
+      # sweep stale kubeconfigs.
+      - linters:
+          - gosec
+        text: "^(G302|G703):"
+        path: ^internal/tempkube/temp\.go$
 
     paths:
       - third_party$

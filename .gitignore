@@ -43,3 +43,9 @@ docs/superpowers/
 
 # goreleaser build output
 dist/
+
+# Coverage from `mise run test`
+coverage.txt
+
+# bun installs the commit message check's dependencies here
+.github/commit-lint/node_modules/

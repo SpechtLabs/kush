@@ -71,14 +71,15 @@ func initConfig() {
 	}
 }
 
-// AddSubcommands wires every non-root subcommand. Phase 1 registers nothing new
-// beyond version; later phases extend this.
+// AddSubcommands wires every subcommand but version, which NewRootCmd adds.
 func AddSubcommands(root *cobra.Command) {
-	root.AddCommand(cmdCtx)
-	root.AddCommand(cmdCurrent)
-	root.AddCommand(cmdNs)
-	root.AddCommand(cmdInit)
-	root.AddCommand(cmdExec)
-	root.AddCommand(cmdLint)
-	root.AddCommand(cmdSplit)
+	root.AddCommand(
+		newCtxCmd(),
+		newCurrentCmd(),
+		newNsCmd(),
+		newInitCmd(),
+		newExecCmd(),
+		newLintCmd(),
+		newSplitCmd(),
+	)
 }
