@@ -673,7 +673,7 @@
 
     "find-up": ["find-up@4.1.0", "", { "dependencies": { "locate-path": "^5.0.0", "path-exists": "^4.0.0" } }, "sha512-PpOwAdQ/YlXQ2vj8a3h8IipDuYRi3wceVQQGYWxNINccq40Anw7BlsEXCMbt1Zt+OLA6Fq9suIpIWD0OsnISlw=="],
 
-    "focus-trap": ["focus-trap@8.2.2", "", { "dependencies": { "tabbable": "^6.5.0" } }, "sha512-qV0g8hRYBqgACcFOH3f9wXc4zPKhr/0z9RI2a6ZijZ72EeBi4g8oBy8zAWuUR1TsMpOzwpUMFvjdasrC41Joug=="],
+    "focus-trap": ["focus-trap@8.2.3", "", { "dependencies": { "tabbable": "^6.5.0" } }, "sha512-LTNHZwcFM7bSdU1cG1ExoaTEzoGmdjw+EzDotolZmLTCbm0ll2k6J3NL+WfqP14nGLxAp+XDJgwlT2DtNhcukA=="],
 
     "follow-redirects": ["follow-redirects@1.16.1", "", { "peerDependencies": { "debug": "*" }, "optionalPeers": ["debug"] }, "sha512-FNvFGzoMLWmE6Yj9spb/zjd7yiNCHiAW9/Tg9CXrQ8wuu32HtlJOwWO11OJafl5FfY3DxTdQ0vj42zU1kvv5jg=="],
 
