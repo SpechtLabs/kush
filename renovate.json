@@ -9,6 +9,9 @@
   "timezone": "Europe/Berlin",
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "Dependency Dashboard",
+  "gitIgnoredAuthors": [
+    "bot@specht-labs.de"
+  ],
   "prHourlyLimit": 2,
   "prConcurrentLimit": 8,
   "rebaseWhen": "behind-base-branch",
@@ -135,7 +138,7 @@
       "dependencyDashboardApproval": false
     },
     {
-      "description": "Group Go module updates together. Every go.sum change needs a new vendorHash in package.nix (`mise run nix:update-hash`), or the Nix job fails and the update waits.",
+      "description": "Group Go module updates together. Every go.sum change needs a new vendorHash in package.nix; the nix-vendor-hash workflow commits it to the pull request (as bot@specht-labs.de, which gitIgnoredAuthors lets Renovate keep rebasing over).",
       "matchManagers": [
         "gomod"
       ],
