@@ -21,6 +21,11 @@ on:
       - .markdownlint-cli2.yaml
       - .mise.toml
       - .github/workflows/docs-website.yaml
+  # Releases and contributors are fetched from the GitHub API at build time,
+  # so rebuild daily to keep them current between pushes. The schedule has no
+  # path filter and always deploys.
+  schedule:
+    - cron: "17 4 * * *"
 
 # Each job installs the tools it needs with mise-action's install_args. Without
 # this, `mise run` installs every tool in .mise.toml first, gopls and delve
@@ -74,9 +79,13 @@ jobs:
 
       - name: Build
         run: mise run docs-build
+        env:
+          # Authenticates the build-time GitHub API calls for releases and
+          # contributors (60 requests/hour without it, 1,000 with it).
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Artifacts
-        # Only the deploy job consumes this, and it runs on push/dispatch.
+        # Only the deploy job consumes this, and it runs on push/dispatch/schedule.
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -91,7 +100,7 @@ jobs:
     needs:
       - build
       - md
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'schedule'
     permissions:
       id-token: write
       pages: write

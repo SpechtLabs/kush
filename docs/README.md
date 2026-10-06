@@ -42,7 +42,7 @@ config:
         icon: mdi:robot-happy
         details: kush exec runs one command in an isolated context non-interactively, with a Claude Code plugin so agentic tools use it correctly.
 
-  - type: VPListCompareCustom
+  - type: VPListCompare
     title: "Manual juggling vs. kush"
     description: "How you switch contexts today, and how kush does it"
     left:
