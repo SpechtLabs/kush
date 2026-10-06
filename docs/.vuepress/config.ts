@@ -1,7 +1,5 @@
+import { docsKitPlugin } from "@spechtlabs/docs-kit";
 import { viteBundler } from "@vuepress/bundler-vite";
-import { registerComponentsPlugin } from "@vuepress/plugin-register-components";
-import { path } from "@vuepress/utils";
-import container from "markdown-it-container";
 import { defineUserConfig } from "vuepress";
 import { plumeTheme } from "vuepress-theme-plume";
 
@@ -30,84 +28,10 @@ export default defineUserConfig({
   // Exclude planning artifacts (gitignored) from the built site.
   pagePatterns: ["**/*.md", "!.vuepress", "!node_modules", "!superpowers"],
 
-  extendsMarkdown: (md) => {
-    md.use(container, "terminal", {
-      validate: (params: string) => {
-        const info = params.trim();
-        return /^terminal(?:\s+.*)?$/.test(info);
-      },
-      render: (tokens: any[], idx: number) => {
-        const token = tokens[idx];
-        if (token.nesting === 1) {
-          const info = token.info.trim();
-          const rest = info.replace(/^terminal\s*/, "");
-          const attrs: Record<string, string> = {};
-          const attrRegex = /(\w+)=((?:\"[^\"]*\")|(?:'[^']*')|(?:[^\s]+))/g;
-          let consumed = "";
-          let m: RegExpExecArray | null;
-          while ((m = attrRegex.exec(rest)) !== null) {
-            const key = m[1];
-            let val = m[2];
-            if (
-              (val.startsWith('"') && val.endsWith('"')) ||
-              (val.startsWith("'") && val.endsWith("'"))
-            ) {
-              val = val.slice(1, -1);
-            }
-            attrs[key] = val;
-            consumed += m[0] + " ";
-          }
-          const positional = rest.replace(consumed, "").trim();
-          const titleRaw = attrs.title ?? positional ?? "";
-          const title = titleRaw ? md.utils.escapeHtml(titleRaw) : "";
-          const titleAttr = title ? ` title=\"${title}\"` : "";
-          return `\n<Terminal${titleAttr}>\n`;
-        }
-        return `\n</Terminal>\n`;
-      },
-    });
-
-    md.use(container, "cast", {
-      validate: (params: string) => {
-        const info = params.trim();
-        return /^cast(?:\s+.*)?$/.test(info);
-      },
-      render: (tokens: any[], idx: number) => {
-        const token = tokens[idx];
-        if (token.nesting === 1) {
-          const info = token.info.trim();
-          const rest = info.replace(/^cast\s*/, "");
-          const attrs: Record<string, string> = {};
-          const attrRegex = /(\w+)=((?:\"[^\"]*\")|(?:'[^']*')|(?:[^\s]+))/g;
-          let m: RegExpExecArray | null;
-          while ((m = attrRegex.exec(rest)) !== null) {
-            const key = m[1];
-            let val = m[2];
-            if (
-              (val.startsWith('"') && val.endsWith('"')) ||
-              (val.startsWith("'") && val.endsWith("'"))
-            ) {
-              val = val.slice(1, -1);
-            }
-            attrs[key] = val;
-          }
-
-          const src = attrs.src ? md.utils.escapeHtml(attrs.src) : "";
-          const title = attrs.title ? md.utils.escapeHtml(attrs.title) : "";
-          const rows = attrs.rows ? Number.parseInt(attrs.rows, 10) : 16;
-          const rowsAttr = Number.isFinite(rows) ? ` :rows="${rows}"` : "";
-          const titleAttr = title ? ` title="${title}"` : "";
-          return `\n<AsciinemaCast src="${src}"${titleAttr}${rowsAttr} />\n`;
-        }
-        return "\n";
-      },
-    });
-  },
-
   plugins: [
-    registerComponentsPlugin({
-      componentsDir: path.resolve(__dirname, "./components"),
-    }),
+    // The shared components and the terminal and cast containers, with
+    // releases and contributors fetched from GitHub at build time
+    docsKitPlugin({ github: { repos: ["SpechtLabs/kush"] } }),
   ],
 
   theme: plumeTheme({
