@@ -25,7 +25,7 @@ concurrency:
 env:
   # mise itself, pinned; go.yaml explains why.
   # renovate: datasource=github-releases depName=jdx/mise extractVersion=^v(?<version>.+)$
-  MISE_VERSION: 2026.10.2
+  MISE_VERSION: 2026.10.4
 
 jobs:
   update:
