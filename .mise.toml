@@ -12,7 +12,7 @@ idiomatic_version_file_enable_tools = []
 [tools]
 # The go directive in go.mod is the minimum language version, bumped by hand;
 # this is the toolchain everything runs on.
-go = "1.27.1"
+go = "1.27.2"
 "go:golang.org/x/tools/gopls" = "0.23.0"
 "go:github.com/go-delve/delve/cmd/dlv" = "1.27.2"
 
