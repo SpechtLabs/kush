@@ -38,7 +38,7 @@ pinact = "5.0.0"
 # Documentation website (docs/): VuePress builds under bun, and bun runs
 # .github/commit-lint, the squash commit message check in pr-hygiene.yaml.
 # markdownlint-cli2 is an npm package, which mise installs with node.
-bun = "1.4.2"
+bun = "1.4.3"
 node = "24.21.0"
 markdownlint-cli2 = "0.23.3"
 
