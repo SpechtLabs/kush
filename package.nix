@@ -14,7 +14,7 @@ buildGoModule {
   # Stale after a go.sum change, which fails the Nix CI job. On a pull request
   # the nix-vendor-hash workflow commits the new one; locally, run
   # `mise run nix:update-hash`.
-  vendorHash = "sha256-8/Dc0Mc9BaDosMFuEjKHc+AlO1aXVAcRqf6gbiG745k=";
+  vendorHash = "sha256-G80qN/ehaMOrqMlcRPaIRDpQF5v7O5cv2Y1hCSyzKVs=";
 
   subPackages = [ "cmd/kush" ];
 
