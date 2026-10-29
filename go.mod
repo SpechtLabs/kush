@@ -7,7 +7,7 @@ require (
 	github.com/sierrasoftworks/humane-errors-go v0.0.0-20260820132314-9a466da5e0f0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
-	k8s.io/client-go v0.37.1
+	k8s.io/client-go v0.37.2
 )
 
 require (
@@ -64,7 +64,7 @@ require (
 	golang.org/x/text v0.43.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	k8s.io/apimachinery v0.37.1 // indirect
+	k8s.io/apimachinery v0.37.2 // indirect
 	k8s.io/klog/v2 v2.140.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20261005140446-337977e07504 // indirect
 	k8s.io/utils v0.0.0-20260707023825-cf1189d6abe3 // indirect
