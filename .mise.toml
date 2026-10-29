@@ -44,7 +44,7 @@ markdownlint-cli2 = "0.24.0"
 
 # Trying kush against a throwaway local cluster.
 kind = "0.33.0"
-kubectl = "1.37.1"
+kubectl = "1.37.2"
 k9s = "0.51.0"
 
 [tasks.build]
